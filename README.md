@@ -75,9 +75,12 @@ If everything else is together, all you should have to do is run the main.py scr
 
 A Video briefly review the main script (and talk about the config script):  
 
-# 7. Common Debugging Techniques and Issues
+# 7. Setting Up API Key 
 
-# 8. Checking the Output (generate_test_sample)
+# 8. Understanding the Google Gemini Universe (Usage, Limits, Models, etc.)
 
-# 9. Understanding the Google Gemini Universe (Usage, Limits, Models, etc.)
+# 9. Common Debugging Techniques and Issues
+
+# 10. Checking the Output (generate_test_sample)
+
 
