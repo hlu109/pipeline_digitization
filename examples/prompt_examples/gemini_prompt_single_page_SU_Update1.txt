@@ -1,0 +1,55 @@
+Extract structured data from this document and return it in JSON format following the **Page schema** provided.
+
+---
+
+### ** General Instructions**
+- The document contains **data** on civil evictions
+- Your goal is to: Extract all monetary values and identifying information from each eviction page, following the structure and layout rules below.
+- All text is in the **English Language**.
+- **Do NOT omit any entries**, and do not invent or infer any data that does not visually appear in the table.
+
+---
+
+### ** Page Handling Rules**
+- Process each page independently.
+- Identify to the box labeled **CASE DISPOSITION** (usually on the bottom-left of the page).
+- Locate the exact phrase:
+  **"CASE DISPOSITION"**, it will be bold.
+    - ** Above it, there will be a long, bold, black line**
+    - Above this long, bold black line, there will be some text and boxes
+    - Above this text, will be a thinner long black line.
+- ** What we are interested in is the section between these two black lines above the "CASE DISPOSITION" text
+- In this section between the two line, there is one row with three checkboxes (`[]`),
+    1. After the first checkbox (`[]`) is the text: "PLAINTIFF(S)"
+    2. After the second checkbox (`[]`) is the text: "PLAINTIFFS ATTORNEY"
+    3. After the third checkbox (`[]`) is the text: "PLAINTIFFS AGENT"
+    3. At the right end of this row, there is the text "DATE", ignore this text and any information that follows it
+---
+
+### **Extraction Rules**
+For each entry, extract
+1. Eviction Reason
+    - First, check if there is a **visible mark** (`x`, `X`, checkmark, filled box, or clearly darkened area inside the box) in the **first** checkbox.
+    - Second, check if there is a **visible mark** (`x`, `X`, checkmark, filled box, or clearly darkened area inside the box) in the **second** checkbox.
+    - Third, check if there is a **visible mark** (`x`, `X`, checkmark, filled box, or clearly darkened area inside the box) in the **second** checkbox.
+            - A checkbox is considered **marked** only if there is a visible symbol or darkened area **inside the checkbox** itself.
+            - Do **not** count adjacent printed text as a mark. Text located near or to the left of a checkbox does **not** indicate that it is marked unless there is an actual visible mark inside the checkbox.
+    - If there is **ONLY** a mark in the **first** checkbox, extract and return the text to the right of the checkbox which corresponds to ""Plaintiff(s)"
+    - If there is **ONLY** a mark in the **second** checkbox, extract and return the text to the right of the checkbox which corresponds to "Plaintiffs Attorney"
+    - If there is **ONLY** a mark in the **third** checkbox, extract and return the text to the right of the checkbox which corresponds to "Plaintiffs Agent".
+    - If **neither** the first, nor the second, nor the third checkbox is marked, return: "missing"
+
+Ignore all other information in the document.
+
+---
+
+### **Output Rules**
+- **Do NOT add in any made up data that does not appear in the table**
+- **Follow the response schema provided** (`Page`).
+- Do not wrap the JSON in explanatory text
+- **Most importantly, do NOT omit any entries**
+
+---
+### ** Important Constraints**
+ **Ensure all entries are included.**
+ **Do NOT omit any entries.**

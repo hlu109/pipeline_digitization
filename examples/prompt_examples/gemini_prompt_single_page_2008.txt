@@ -1,0 +1,78 @@
+Extract structured data from this file and return it following the **Page schema**.
+
+---
+
+### ** General Instructions**
+- The document contains **data with nested hierarchical structures**.
+- Every page contains a list data, you should read starting from the top to the bottom.
+    - **State Name** → located at the top middle of the page, in a rectangle, underneath the words "2008 Directory of U.S. Mental Health Facilities".
+    - **City** → Found on left side of the page, bold and underlined, and alone with some vertical space above and below them.
+    - **Health Center** → Found in blocks of text below city names and are bold. Health centers are in a vertical list of one or more.
+- All data on a page corresponds directly to that pages' respective **State name**.
+- ** All letters are in the English alphabet and all words and names are in the English language**
+- **Do NOT omit any projects on the page**.
+- **Do not deduplicate, merge, normalize, or drop** rows because they look similar or identical.
+- Each Health Centers address will correspond with the health centers city and state abbreviation.
+
+---
+
+### **Extraction Rules**
+1. **Page Number** → PAGE_PLACEMENT, as indicated by the page location in the file.
+2. **State Name** → located at the top middle of the page in a rectangle underneath the words "2008 Directory of U.S. Mental Health Facilities". State Name must be a U.S. state, territory, or District of Columbia.
+3. **City Name** → Found on left side of page, bold and underlined, with some vertical space above and below them. City Name should be a valid U.S. city or town.
+    - Each City Name will have a vertical space above it and below it. The list of one or more Projects for the city will follow after the blank space.
+4. **Health Center Name** → Found in text chunks below a city. It is one line and bold. Once a line starts with a number, that signals the end of the Health Center name, and the beginning of its address.
+5. **Health Center Attributes**:
+   - ** Health Center ID **  → a sequence of numbers with a dash in the format: "000000-00" or "000000-0".
+        - It will be on the same line as the **Health Center Name**, on the right side of the page.
+        - It always follows the text "ID:", and is contained in brackets: "[]"
+   - **Address** → The health center's address, one line always right below the **Health Center Name**.
+        - It always begins with numbers and ends with numbers, specifically the addresses zip code.
+   - ** Office Type** → located directly underneath the ** Health Center ID ** and in the sa,e row as the ** Address ** but on the right side of the page.
+        - Always is directly after the text: "Office Type:", and is either "Satellite" or "Headquarters".
+   - **Phone Number** → Directly below the ** Address **, and always follows the underlined text "Phone:".
+        - Phone numbers three numbers in parentheses, of the format "(xxx)"
+   - **Service Setting(s)** → In the same line as the ** Phone Number ** on the right side of the page.
+        - Is either the text, "Outpatient", "Residential", "Inpatient & Outpatient", "Inpatient", "Administrative Only", "Not Reported",  "Residential & Outpatient", "Inpatient & Residential", or "Inpatient, Resid., & Outpatient".
+        - It always follows the underlined text: "Service Setting(s):"
+
+---
+
+### ** Page Handling Rules**
+- **Do not omit any health center that you see visually on the page, and do not add or make up any health centers**
+- ** The list of one or more projects with be followed by a blank space below the list. Most of the time, the next city is given below the blank space, after the
+list of one or more projects. But occasionally, if that is the end of the state, the next state (and then city, etc.) will be given below the blank space, after the list of one or more projects.
+- Ignore all numbers that follow the underlined word "Fax:".
+- Ignore the website address underneath the underlined "Phone:" text.
+---
+
+### **Output Rules**
+- **Ensure correct nesting**:
+  - **States contain a list of cities**.
+  - **Cities contain a list of Health Center Projects**.
+  - **Each project and its attributes are in a single block.**
+    - ** A project must have a name, ID, address, office type, phone number, and service setting**.
+- **Provide an empty string where table values for a requested field are blank.**
+- **Do NOT add in any made-up data that does not appear visually on the page**
+- **Follow the response schema provided** (`Page`).
+- **Most importantly, do NOT omit any health centers**
+- **Use knowledge of U.S. towns and cities to correct minor spelling errors ONLY in city names**
+    - Do not modify valid city names
+    - Do not make major changes to the string if you cannot match the string to a valid city name
+    - Within each state, cities are **almost always listed in alphabetical order**
+- **Use knowledge of U.S. streets and neighborhoods to correct minor spelling errors ONLY in health center addresses**
+    - all letters are in the English alphabet
+
+---
+
+### ** Important Constraints**
+ **Ensure all states, cities, and health centers are included.**
+ **Do NOT omit any health centers.**
+ ** Indentation, bolding, and underlining play a critical role in identifying cities, health centers, and health center attributes.**
+**Use knowledge of U.S. cities to correct minor spelling errors in city names**
+    - Do not modify valid city names
+    - Do not make major changes to the string if you cannot match the string to a valid city name
+    - Within each state, cities are **almost always listed in alphabetical order**
+** The address of a health center should reflect its city name and State abbreviation. Use health center addresses to check these columns. **
+
+

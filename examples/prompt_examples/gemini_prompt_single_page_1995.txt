@@ -1,0 +1,72 @@
+Extract structured data from this file and return it following the **Page schema**.
+
+---
+
+### ** General Instructions**
+- The document contains **data with nested hierarchical structures**.
+- Every page contains three columns of data, you should read starting from the leftmost column top ot bottom, then do the same for the middle and right column.
+    - **State Name** → located at the very top left corner of the page
+    - **City** → Found within the columns, underlined, and alone with some vertical space above and below them.
+    - **Clinic Type** → Found within the columns, alone with some vertical space above and below them, followed by one or health centers.
+    - **Health Center** → Found in blocks of text in the columns. Health centers are in a vertical list of one or more.
+- All data on a page corresponds directly to that pages' respective **State name**.
+- ** All letters are in the English alphabet and all words and names are in the English language**
+- **Do NOT omit any projects on the page**.
+- **Do not deduplicate, merge, normalize, or drop** rows because they look similar or identical.
+- Each Health Centers address will correspond with the health centers city and state abbreviation.
+
+---
+
+### **Extraction Rules**
+1. **Page Number** → PAGE_PLACEMENT, as indicated by the page location in the file.
+2. **State Name** → located at the very top left corner of the page. State Name must be a U.S. state, territory, or District of Columbia.
+3. **City Name** → Found within the columns, underlined, and alone with some vertical space above and below them. City Name should be a valid U.S. city or town.
+    - Cities are underlined. A list of one or more Clinic Types for that City will follow after the blank space.
+4. **Clinic Type** → Found within the columns, alone with some vertical space above and below them.
+    - Each Clinic Type will have a vertical space above it and below it. The list of one or more Projects for that Clinic Type will follow after the blank space.
+5. **Health Center Name** → Found in text chunks below a clinic type. It can be one or multiple lines. Once a line starts with a number, that signals the end of the Health Center name, and the beginning of its address.
+6. **Health Center Attributes**:
+   - **Address** → The health center's address, usually two or three lines. It always begins with numbers and ends with the addresses 5 number zip code.
+   - **Phone Number** → the line starts with the area code, three numbers in parentheses, of the format "(xxx)"
+        - There are sometimes additional phone numbers provided on the next lines below. These usually begin with the phrase "Intake:". Ignore these phone numbers
+
+---
+
+### ** Page Handling Rules**
+- **Do not omit any health center that you see visually on the page, and do not add or make up any health centers**
+- ** The list of one or more projects with be followed by a blank space below the list. Most of the time, the next city is given below the blank space, after the
+list of one or more projects. But occasionally, if that is the end of the state, the next state (and then city, etc.) will be given below the blank space, after the list of one or more projects.
+
+---
+
+### **Output Rules**
+- **Ensure correct nesting**:
+  - **States contain a list of cities**.
+  - **Cities contain a list of Clinic Types**.
+  - **Clinic Types contain a list of projects**.
+  - **Each project and its attributes are in a single row.**
+    - ** A project must have a name, address, and phone number**.
+- **Provide an empty string where table values for a requested field are blank.**
+- **Do NOT add in any made-up data that does not appear visually on the page**
+- **Follow the response schema provided** (`Page`).
+- **Most importantly, do NOT omit any health centers**
+- **Use knowledge of U.S. towns and cities to correct minor spelling errors ONLY in city names**
+    - Do not modify valid city names
+    - Do not make major changes to the string if you cannot match the string to a valid city name
+    - Within each state, cities are **almost always listed in alphabetical order**
+- **Use knowledge of U.S. streets and neighborhoods to correct minor spelling errors ONLY in health center addresses**
+    - all letters are in the English alphabet
+
+---
+
+### ** Important Constraints**
+ **Ensure all states, cities, and health centers are included.**
+ **Do NOT omit any health centers.**
+ ** Indentation and underlining plays a critical role in identifying cities, clinic types, and health centers:**
+**Use knowledge of U.S. cities to correct minor spelling errors in city names**
+    - Do not modify valid city names
+    - Do not make major changes to the string if you cannot match the string to a valid city name
+    - Within each state, cities are **almost always listed in alphabetical order**
+** The address of a health center should reflect its city name and State abbreviation. Use health center addresses to check these columns. **
+
+

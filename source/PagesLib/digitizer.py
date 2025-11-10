@@ -6,10 +6,11 @@ import requests
 import os
 import pandas as pd
 from pdf2image import convert_from_path
-from PagesLib.Page_candidates import page_to_dataframe
-# ----------------------------------------------------------------------------------
-# -- Define functions --------------------------------------------------------------
-# ----------------------------------------------------------------------------------
+from PagesLib.Page import page_to_dataframe
+# ------------------------------------------------------------------------------
+# -- Define functions ----------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 def check_pages(file_path, page_N, page_window, placement="middle"):
     """
@@ -35,7 +36,9 @@ def check_pages(file_path, page_N, page_window, placement="middle"):
 
     # Ensure page_N is within valid range
     if page_N < 1 or page_N > total_page_count:
-        raise ValueError(f"Page N ({page_N}) is out of document range (1-{total_page_count})")
+        raise ValueError(
+            f"Page N ({page_N}) is out of document range (1-{total_page_count})"
+        )
 
     # Determine the start page based on placement
     if placement == "top":
@@ -45,19 +48,21 @@ def check_pages(file_path, page_N, page_window, placement="middle"):
     elif placement == "bottom":
         start_page = page_N - (page_window - 1)
     else:
-        raise ValueError("Invalid placement. Choose from 'top', 'middle', or 'bottom'.")
+        raise ValueError(
+            "Invalid placement. Choose from 'top', 'middle', or 'bottom'.")
     # Debugging
 
     # Ensure the start_page and n_pages fit within the document range
     if start_page < 1:
         start_page = 1
     if start_page + page_window - 1 > total_page_count:
-        start_page = max(1, total_page_count - page_window + 1)  # Shift window left
+        start_page = max(1, total_page_count - page_window +
+                         1)  # Shift window left
     # Final page count
     n_pages = min(page_window, total_page_count - start_page + 1)
 
     # get end page
-    end_page = start_page + n_pages -1
+    end_page = start_page + n_pages - 1
 
     return start_page, end_page
 
@@ -86,13 +91,19 @@ def check_document(file_path, all_pages=False, start_page=1, n_pages=1):
 
     else:
         if total_page_count < (start_page + (n_pages - 1)):
-            raise Exception(("Total pages requested exceeds document length!",
-                                f"   Requested pages {start_page} to {start_page + (n_pages - 1)}",
-                                f"but document only has {total_page_count} pages"))
+            raise Exception((
+                "Total pages requested exceeds document length!",
+                f"   Requested pages {start_page} to {start_page + (n_pages - 1)}",
+                f"but document only has {total_page_count} pages"))
 
     return start_page, n_pages
 
-def upload_pages_to_API(genai_client, file_path: str, start_page: int, end_page:int, png=False):
+
+def upload_pages_to_API(genai_client,
+                        file_path: str,
+                        start_page: int,
+                        end_page: int,
+                        png=False):
     """
 Uploads selected pages of a PDF (or PNG if requested) to the Gemini API.
 
@@ -116,7 +127,9 @@ Returns:
     for f in existing_files:
         if f.display_name == file_name:
             uploaded_file = f
-            print(f"    File '{file_name}' already exists in the File API. Skipping upload.")
+            print(
+                f"    File '{file_name}' already exists in the File API. Skipping upload."
+            )
             break
 
     # Upload file  (only if it has not already been uploaded) ---------------
@@ -126,8 +139,10 @@ Returns:
     temp_path = temp_file.name
     temp_file.close()  # Close the file so PyPDF2 can write to it
 
-    if png and start_page==end_page:
-        images = convert_from_path(file_path, first_page=start_page, last_page=end_page)
+    if png and start_page == end_page:
+        images = convert_from_path(file_path,
+                                   first_page=start_page,
+                                   last_page=end_page)
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
         temp_path = temp_file.name
         temp_file.close()
@@ -135,26 +150,30 @@ Returns:
     else:
         reader = PdfReader(file_path)
         writer = PdfWriter()
-        for i in range(start_page - 1, end_page):  # Convert 1-based to 0-based index
+        for i in range(start_page - 1,
+                       end_page):  # Convert 1-based to 0-based index
             writer.add_page(reader.pages[i])
         with open(temp_path, "wb") as output:
             writer.write(output)
-
 
     # Upload the file to the File API ---
     if not uploaded_file:
         print(f"    Uploading file: {file_name}")
         uploaded_file = genai_client.files.upload(
-            file=temp_path, config={'display_name': file_name}
-        )
+            file=temp_path, config={'display_name': file_name})
 
     # delete tmp file after it's uploaded
     os.remove(temp_path)
 
     return uploaded_file
 
-def extract_page_data(genai_client, input_file, model: BaseModel,
-                      prompt_text: str, model_id="gemini-2.5-pro", debug=False):
+
+def extract_page_data(genai_client,
+                      input_file,
+                      model: BaseModel,
+                      prompt_text: str,
+                      model_id="gemini-2.5-pro",
+                      debug=False):
     """
 Extracts structured data from a page using the Gemini API.
 
@@ -172,27 +191,33 @@ Returns:
     # limit output size
     max_token_output = 40000
     max_retries = 5
-    base_wait = 10       # this is in seconds!
+    base_wait = 20  # this is in seconds!
 
     for attempt in range(max_retries):
+        print(f"      Attempt {attempt + 1} to extract data...")
         try:
             # Generate a structured response using the Gemini API ---
             response = genai_client.models.generate_content(
                 model=model_id,
                 contents=[prompt_text, input_file],
-                config={'response_mime_type': 'application/json',
-                        'response_schema': model,
-                        'max_output_tokens': max_token_output})
+                config={
+                    'response_mime_type': 'application/json',
+                    'response_schema': model,
+                    'max_output_tokens': max_token_output
+                })
 
-            #print("API Response:", response)  # Debugging step
-            #print(" Response Usage Metadata:", response.usage_metadata)
+            print("API Response:", response)  # Debugging step
+            print(" Response Usage Metadata:", response.usage_metadata)
 
             # Added: Check for token limit issues
             if hasattr(response, 'candidates') and response.candidates:
                 if response.candidates[0].finish_reason.name == 'MAX_TOKENS':
                     print(
-                        f"WARNING: Response truncated due to token limit. Consider increasing max_output_tokens or splitting the page.")
-                    print(f"Token count: {response.usage_metadata.candidates_token_count}")
+                        f"WARNING: Response truncated due to token limit. Consider increasing max_output_tokens or splitting the page."
+                    )
+                    print(
+                        f"Token count: {response.usage_metadata.candidates_token_count}"
+                    )
 
             if debug:
                 file_path = "output.txt"
@@ -200,7 +225,9 @@ Returns:
                 # Open the file in append mode and write text multiple times
                 with open(file_path, "a", encoding="utf-8") as file:
                     for i in range(5):  # Writing 5 times
-                        file.write(f"Line {i + 1}: This is some text being written.\n")
+                        file.write(
+                            f"Line {i + 1}: This is some text being written.\n"
+                        )
 
             if not response or not response.parsed:
                 print("ERROR: The API did not return a valid parsed response.")
@@ -211,8 +238,10 @@ Returns:
         # Add in a wat time response if the model is temporarily unavailable (error 503)
         except Exception as e:
             if '503' in str(e):
-                wait_time = base_wait * (2 ** attempt)
-                print(f"Error 503 on attempt {attempt + 1}. Retrying in {wait_time:.1f}s...")
+                wait_time = base_wait * (2**attempt)
+                print(
+                    f"Error 503 on attempt {attempt + 1}. Retrying in {wait_time:.1f}s..."
+                )
                 time.sleep(wait_time)
             else:
                 print(f"EXCEPTION occurred (non-retryable): {e}")
@@ -221,9 +250,19 @@ Returns:
     print("Max 503 error retries reached. Giving up on this page.")
     return None
 
-def process_pages(genai_client, file_path: str, model: BaseModel, prompt_text: str, model_id: str,
-                  total_pages: int, start_page: int, outfile_path: str,
-                  page_window=1, page_placement="middle", png=False, debug=False):
+
+def process_pages(genai_client,
+                  file_path: str,
+                  model: BaseModel,
+                  prompt_text: str,
+                  model_id: str,
+                  total_pages: int,
+                  start_page: int,
+                  outfile_path: str,
+                  page_window=1,
+                  page_placement="middle",
+                  png=False,
+                  debug=False):
     """
 Extracts structured data from each page in the document and saves results.
 
@@ -248,15 +287,18 @@ Returns:
     all_dataframes = []
     max_retries = 5  # Set max retries to prevent infinite loops
     # check if all
-    for N in range(start_page, (start_page + total_pages)): # recall, last number excluded in python range
+    for N in range(start_page, (start_page + total_pages)):
+        # recall, last number excluded in python range
         retries = 0
         success = False  # Track if the page was successfully processed
 
         # get subset of document pages to upload, based on page_window
-        first_pg, last_pg = check_pages(file_path, N, page_window, page_placement)
+        first_pg, last_pg = check_pages(file_path, N, page_window,
+                                        page_placement)
         # Define prompt
         page_N_placement = N - first_pg + 1
-        prompt = prompt_text.replace("PAGE_N", str(N))  # CAREFUL! Don't replace prompt template text
+        prompt = prompt_text.replace(
+            "PAGE_N", str(N))  # CAREFUL! Don't replace prompt template text
         prompt = prompt.replace("PAGE_PLACEMENT", str(page_N_placement))
         # print(prompt)  # DEBUGGING
 
@@ -265,10 +307,15 @@ Returns:
                 print(f"Processing page {N} (Attempt {retries + 1})...")
 
                 # get uploaded pages
-                uploaded_file = upload_pages_to_API(genai_client, file_path, first_pg, last_pg, png=png)
+                uploaded_file = upload_pages_to_API(genai_client,
+                                                    file_path,
+                                                    first_pg,
+                                                    last_pg,
+                                                    png=png)
 
                 # submit Gemini task prompt
-                result = extract_page_data(genai_client, uploaded_file, model, prompt, model_id, debug)
+                result = extract_page_data(genai_client, uploaded_file, model,
+                                           prompt, model_id, debug)
 
                 success = True
                 if result:
@@ -281,7 +328,9 @@ Returns:
                         genai_client.files.delete(name=uploaded_file.name)
                         print(f"Deleted uploaded file: {uploaded_file.name}")
                     except Exception as e:
-                        print(f"Warning: failed to delete uploaded file {uploaded_file.name}: {e}")
+                        print(
+                            f"Warning: failed to delete uploaded file {uploaded_file.name}: {e}"
+                        )
 
                 else:
                     print(f"FAILURE - No data found for for page {N}.")
@@ -293,25 +342,33 @@ Returns:
                     print(f"Retrying page {N} in 5 seconds...")
                     time.sleep(5)  # Wait before retrying
                 else:
-                    raise ValueError(f"Max retries reached for page {N}. Check your connection and try again")
-                    break
+                    raise ValueError(
+                        f"Max retries reached for page {N}. Check your connection and try again"
+                    )
+            # TODO: add error handling for other errors
+            # (EXCEPTION occurred (non-retryable): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.', 'status': 'RESOURCE_EXHAUSTED'}}
 
         # Combine all output into one dataset
             all_dataframes.append(df)
 
-
             # write output to .csv file
             file_exists = os.path.exists(outfile_path)
-            df.to_csv(outfile_path, mode="a", header=not file_exists, index=False)
+            df.to_csv(outfile_path,
+                      mode="a",
+                      header=not file_exists,
+                      index=False)
+            print(f"  Saved output to {outfile_path}\n")
 
     if all_dataframes:
         final_dataframe = pd.concat(all_dataframes, ignore_index=True)
-        print(f"\n Generated dataframe with {df.shape[0]} rows")
+        print(f"\n Generated dataframe with {final_dataframe.shape[0]} rows")
+        final_dataframe.to_csv(outfile_path,
+                               index=False)  # overwrite with full data
+        print(f"  Saved final output to {outfile_path}\n")
         return final_dataframe
     else:
         return None
 
 
-
-# ----------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

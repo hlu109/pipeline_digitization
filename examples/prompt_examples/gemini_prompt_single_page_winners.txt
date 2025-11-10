@@ -1,0 +1,58 @@
+Extract structured data from this document and return it in JSON format following the **Page schema** provided.
+
+---
+
+### ** General Instructions**
+- The document contains **tabular data**, with each row representing a **single lottery entry**.
+- All text is **UPPERCASE** and in the **Portuguese language**.
+- **Do NOT omit any entries**, and do not invent or infer any data that does not visually appear in the table.
+
+---
+
+### ** Page Handling Rules**
+- **Do not omit any entries that you see visually on the page, and do not add or make up any entries**.
+- **Ignore any data that is not in the column structure**.
+- **If a header block exists, but "SORTEADOS" or "SUPLENTES" does not appear in the header block text, skip all entries under that header.**
+
+---
+
+### **Extraction Rules**
+2. **Entry Attributes**:
+    - Each row with data in Column 1 (Classificação) corresponds to one Entry object
+    - **entry Classificação (classification number)** → Found in the first column, is an integer.
+    -**entry Inscrição (enrollment number)** → Found in the second column, is in the format "00000". Keep all five digits including leading zeros.
+    - **entry titular** → A string found in the third column, is a Name in portuguese.
+    - **entry titular CPF number** → A string found in the fourth column, in the format of "000.000.000-00"
+    - **entry conjuge_nome (name)** → A string found in the fifth column, it is a Name in portuguese.
+    - **entry conjuge_CPF number** → A string found in the sixth column, in the format of "000.000.000-00"
+    - **entry category**:
+        - Found in a header block that **always begins with `LISTA DOS`**, followed on the next line by either:
+            - **`SORTEADOS`** → return `"winner"`
+            - **`SUPLENTES`** → return `"reserve"`
+        - Then followed by a line containing **`GRUPO`**.
+        - **Ignore** any header that does **not** contain either `SORTEADOS` or `SUPLENTES`. All entries under such a header are skipped.
+        - Category applies to all subsequent entries until a new header block (starting with `LISTA DOS`) or page end.
+    - **entry group**:
+        - Found in the same header block, after the text `GRUPO`.
+        - Group applies to all subsequent entries until a new `GRUPO` line or a new header block is encountered.
+    - **Remember, if there is not the word "SORTEADOS" or "SUPLENTES" in the header, ignore all the subsequent entries under that header until you reach the next header that contains one of those two words.
+---
+
+### **Output Rules**
+- **Each Entry and its attributes are in a single row.**
+- **Do NOT add in any made up data that does not appear in the table**
+- **Follow the response schema provided** (`Page`).
+- Do not wrap the JSON in explanatory text
+- **Most importantly, do NOT omit any entries**
+
+---
+
+### **Validation Requirements**
+- Verify each CPF contains exactly 11 digits in format "000.000.000-00"
+- Double-check any CPF that seems unusual or doesn't follow the pattern
+- If you're uncertain about a specific digit, mark it as [UNCERTAIN: X] where X is your best guess
+
+---
+### ** Important Constraints**
+ **Ensure all entries are included.**
+ **Do NOT omit any entries.**
