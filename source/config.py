@@ -7,18 +7,29 @@ from datetime import datetime
 # Set File Paths -------------------------------------------
 # Define which pdf input to use
 # Give entire path to the file; expecting a .pdf
-INPUT_FILE_PATH = "inputs/pipeline scans cropped/1947_pg2.pdf"
+INPUT_FILE_PATH = "inputs/pipeline_scans/1946-1951_combined.pdf"
 
-# Define your output file name
-# path MUST be a .csv file
-OUTPUT_FILE_NAME = os.path.splitext(
-    os.path.basename(INPUT_FILE_PATH))[0] + ".csv"
+# Define your output file base name (no file extension)
+OUTPUT_FILE_BASE_NAME = os.path.splitext(os.path.basename(INPUT_FILE_PATH))[0]
 
-# Define output directory ----
-# output_data_dir = os.path.join(, "", "")
-output_data_dir = "outputs"
+# SET OUTPUT PATH  -------------------------------------------------------------
+output_dir = "outputs"
+results_dir = os.path.join(output_dir, "gemini_output")
+log_dir = os.path.join(output_dir, "logs")
+
+# SET GEMINI PROMPT ------------------------------------------------------------
+# Indicate the file name for the prompt to use
+# prompt_text_name = "gemini_prompt_several_pages.txt"
+prompt_text_name = "pipeline_base_prompt.txt"
+prompt_text_path = os.path.join("source/prompts", prompt_text_name)
+
 
 # Set API Parameters -------------------------------------------
+# Define the model you are going to use (flash is free with 1,500 requests per day)
+# gemini_model_id = "gemini-2.0-flash"
+# gemini_model_id = "gemini-2.5-pro"
+gemini_model_id = "gemini-2.5-flash"
+
 # Set the number of pages before and after page N to feed into Gemini when digitizing page N
 page_window = 1
 page_placement = "top"
@@ -32,63 +43,45 @@ n_pages = 1  # The number of pages (total) to digitize
 # ! NOTE: .png files must be a single page, so this only works with page_window=1
 png = False
 
-# SET GEMINI PROMPT ------------------------------------------------------------
-# Indicate the file name for the prompt to use
-# prompt_text_name = "gemini_prompt_several_pages.txt"
-prompt_text_name = "gemini_prompt_single_page.txt"
 
 # ------------------------------------------------------------------------------
 # END OF SET PARAMETERS --------------------------------------------------------
 # ------------------------------------------------------------------------------
-# SET OUTPUT PATH  -------------------------------------------------------------
 
-output_maindir = os.path.join(output_data_dir, "gemini_output")
+# save each execution with a separate file suffix --- to ensure nothing is over-written
+timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+identifier = f"{timestamp}_by{page_window}pgs"
+OUTPUT_FILE_NAME = OUTPUT_FILE_BASE_NAME + "_" + identifier + ".csv"
 
-# save each execution in a separate directory --- to ensure nothing is over-written
-timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-# exe_dir = f"Run_{timestamp}__window{page_window}__place{page_placement}"
-exe_dir = f"Run_{timestamp}__by{page_window}pages"
-output_dir = os.path.join(output_maindir, exe_dir)
+# folder for intermediate results
+intermediate_dir = os.path.join(results_dir, "intermediate_" + identifier)
 
-# Define the model you are going to use (flash is free with 1,500 requests per day)
-# TODO: @Hannah update this to more recent model
-# or "gemini-2.0-flash-lite-preview-02-05"  , "gemini-2.0-pro-exp-02-05"
-# gemini_model_id = "gemini-2.0-flash"
-# gemini_model_id = "gemini-2.5-pro"
-gemini_model_id = "gemini-2.5-flash"
-
-# ------------------------------------------------------------------------------
-# Set file paths ---------------------------------------------------------------
-# ------------------------------------------------------------------------------
-
-prompt_text_path = os.path.join("source/prompts", prompt_text_name)
-
+# TODO: move this to utils
 # Define logging function
 
 
-def write_log(message, log_dir=output_dir):
-    if not os.path.exists(os.path.join(log_dir, "logs")):
-        os.makedirs(os.path.join(log_dir, "logs"))
-    file_path = os.path.join(log_dir, "logs", "__log.txt")
+def write_log(message, log_dir=log_dir):
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    file_path = os.path.join(log_dir, f"log_{identifier}.txt")
     with open(file_path, "a", encoding="utf-8") as file:
         timestamp = datetime.now().strftime("%H%M:%S")
         file.write(f"[{timestamp}] {message}\n\n")
 
 
-def log_config(log_dir=output_dir):
-    outdir = os.path.join(log_dir, "logs")
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
+def log_config(log_dir=log_dir):
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
 
     # Save text of gemini prompt--------
     with open(prompt_text_path, "r") as file:
         prompt_text = file.read()
-    with open(os.path.join(outdir, "prompt_text.txt"), "a",
+    with open(os.path.join(log_dir, "prompt_text.txt"), "a",
               encoding="utf-8") as file:
         file.write(prompt_text)
 
     # Save parameter values ----------
-    file_path = os.path.join(log_dir, "logs", "__log.txt")
+    file_path = os.path.join(log_dir, f"log_{identifier}.txt")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     with open(file_path, "a", encoding="utf-8") as file:

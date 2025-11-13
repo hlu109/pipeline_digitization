@@ -206,8 +206,8 @@ Returns:
                     'max_output_tokens': max_token_output
                 })
 
-            print("API Response:", response)  # Debugging step
-            print(" Response Usage Metadata:", response.usage_metadata)
+            # print("API Response:", response)  # Debugging step
+            # print(" Response Usage Metadata:", response.usage_metadata)
 
             # Added: Check for token limit issues
             if hasattr(response, 'candidates') and response.candidates:
@@ -259,6 +259,7 @@ def process_pages(genai_client,
                   total_pages: int,
                   start_page: int,
                   outfile_path: str,
+                  intermediate_dir: str,
                   page_window=1,
                   page_placement="middle",
                   png=False,
@@ -275,6 +276,7 @@ Parameters:
     total_pages (int): Total number of pages to process.
     start_page (int): Starting page number.
     outfile_path (str): Path to save extracted data.
+    intermediate_dir (str): Folder for intermediate outputs.
     page_window (int): Number of surrounding pages to include.
     page_placement (str): Placement of the target page within the window.
     png (bool): If True, converts pages to PNG before upload.
@@ -295,12 +297,15 @@ Returns:
         # get subset of document pages to upload, based on page_window
         first_pg, last_pg = check_pages(file_path, N, page_window,
                                         page_placement)
-        # Define prompt
-        page_N_placement = N - first_pg + 1
-        prompt = prompt_text.replace(
-            "PAGE_N", str(N))  # CAREFUL! Don't replace prompt template text
-        prompt = prompt.replace("PAGE_PLACEMENT", str(page_N_placement))
-        # print(prompt)  # DEBUGGING
+
+        # ignore this chunk below because we aren't using the multi-page prompt
+        prompt = prompt_text  # TODO: clean this up
+        # # Define prompt
+        # page_N_placement = N - first_pg + 1
+        # prompt = prompt_text.replace(
+        #     "PAGE_N", str(N))  # CAREFUL! Don't replace prompt template text
+        # prompt = prompt.replace("PAGE_PLACEMENT", str(page_N_placement))
+        # # print(prompt)  # DEBUGGING
 
         while retries < max_retries and not success:
             try:
@@ -312,14 +317,14 @@ Returns:
                                                     first_pg,
                                                     last_pg,
                                                     png=png)
-
                 # submit Gemini task prompt
                 result = extract_page_data(genai_client, uploaded_file, model,
                                            prompt, model_id, debug)
-
                 success = True
                 if result:
                     df = page_to_dataframe(result)
+                    # add model ID
+                    df["model_id"] = model_id
                     # Add absolute page number
                     df["absolute_page_n"] = N
 
@@ -352,12 +357,13 @@ Returns:
             all_dataframes.append(df)
 
             # write output to .csv file
-            file_exists = os.path.exists(outfile_path)
-            df.to_csv(outfile_path,
+            intermed_path = os.path.join(
+                intermediate_dir, f"pg{N}.csv")
+            df.to_csv(intermed_path,
                       mode="a",
-                      header=not file_exists,
+                      header=True,
                       index=False)
-            print(f"  Saved output to {outfile_path}\n")
+            print(f"  Saved intermediate results to {intermed_path}\n")
 
     if all_dataframes:
         final_dataframe = pd.concat(all_dataframes, ignore_index=True)
