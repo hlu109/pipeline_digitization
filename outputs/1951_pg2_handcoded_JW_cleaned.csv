@@ -1,0 +1,54 @@
+Data Year,Pipeline Company,Fuel Type,New Construction,Construction Complete,Pipeline Length,Origin State,Terminus State,Interstate or Intrastate
+1950,Triangle Pipe Line Company,PRODUCT,TRUE,FALSE,100.0,Arkansas,UNK,UNK
+1950,Phillips Petroleum Company,PRODUCT,TRUE,TRUE,155.0,Colorado,Colorado,INTRASTATE
+1950,Salt Lake Pipe Line Company,PRODUCT,TRUE,TRUE,120.0,Idaho,Oregon,INTERSTATE
+1950,Salt Lake Pipe Line Company,PRODUCT,TRUE,TRUE,120.0,Oregon,Washington,INTERSTATE
+1950,Salt Lake Pipe Line Company,PRODUCT,TRUE,TRUE,63.0,Idaho,Idaho,INTRASTATE
+1950,Texas Pipe Line Company,PRODUCT,TRUE,FALSE,56.0,Illinois,Indiana,INTERSTATE
+1950,Phillips Petroleum Company,PRODUCT,TRUE,TRUE,18.0,Kansas,Kansas,INTRASTATE
+1950,Plantation Pipe Line Company,PRODUCT,TRUE,FALSE,432.0,Louisiana,Georgia,INTERSTATE
+1950,Plantation Pipe Line Company,PRODUCT,TRUE,FALSE,275.0,Georgia,North Carolina,INTERSTATE
+1950,"Tuscarora Oil Company, Ltd.",PRODUCT,FALSE,FALSE,360.0,New Jersey,Pennsylvania,INTERSTATE
+1950,"Essaness Corporation (Sohio Petroleum Company, Shell Oil Company)",PRODUCT,TRUE,TRUE,57.0,Ohio,Ohio,INTRASTATE
+1950,Miami Valley Corporation (Sohio and The Pure Oil Company),PRODUCT,TRUE,TRUE,58.0,Ohio,Ohio,INTRASTATE
+1950,Susquehanna Pipe Line Company,PRODUCT,TRUE,TRUE,125.0,Ohio,Ontario,INTERSTATE
+1950,Great Lakes Pipe Line Company,PRODUCT,TRUE,TRUE,663.0,Oklahoma,Minnesota,INTERSTATE
+1950,Great Lakes Pipe Line Company,PRODUCT,TRUE,TRUE,165.0,Nebraska,South Dakota,INTERSTATE
+1950,Great Lakes Pipe Line Company,PRODUCT,TRUE,TRUE,193.0,Oklahoma,Kansas,INTERSTATE
+1950,Great Lakes Pipe Line Company,PRODUCT,TRUE,TRUE,54.0,Oklahoma,Oklahoma,INTRASTATE
+1950,Great Lakes Pipe Line Company,PRODUCT,TRUE,TRUE,45.0,Oklahoma,Oklahoma,INTRASTATE
+1950,Great Lakes Pipe Line Company,PRODUCT,TRUE,TRUE,142.0,Kansas,Nebraska,INTERSTATE
+1950,Penn-York Pipe Line Company,PRODUCT,TRUE,FALSE,410.0,Pennsylvania/New York,New York,INTERSTATE
+1950,Dow Chemical Company,PRODUCT,TRUE,TRUE,66.0,Texas,Texas,INTRASTATE
+1950,Shell Pipe Line Corporation,PRODUCT,TRUE,TRUE,19.0,Texas,Texas,INTRASTATE
+1950,United States Pipe Line Company,PRODUCT,TRUE,FALSE,965.0,Texas,Illinois,INTERSTATE
+1950,Alabama-Tennessee Natural Gas Company,PRODUCT,TRUE,TRUE,35.0,Alabama,Alabama,INTRASTATE
+1950,Alabama-Tennessee Natural Gas Company,NATURAL GAS,TRUE,FALSE,26.0,Alabama,Alabama,INTRASTATE
+1950,City of Florence,NATURAL GAS,TRUE,FALSE,84.0,Alabama,Alabama,INTRASTATE
+1950,South Central Alabama Natural Gas Company,NATURAL GAS,TRUE,FALSE,150.0,Alabama,Alabama,INTRASTATE
+1950,Nevada Natural Gas Pipe Line Company,NATURAL GAS,TRUE,FALSE,114.0,Arizona,Nevada,INTERSTATE
+1950,Nevada Natural Gas Pipe Line Company,NATURAL GAS,TRUE,FALSE,7.0,UNK,UNK,UNK
+1950,Arkansas Power & Light Company,NATURAL GAS,TRUE,FALSE,30.0,Arkansas,Arkansas,INTRASTATE
+1950,Crossett Lumber Company,NATURAL GAS,TRUE,FALSE,30.0,Arkansas,Arkansas,INTRASTATE
+1950,Mid-South Gas Company,NATURAL GAS,TRUE,FALSE,240.0,Arkansas,Arkansas,INTRASTATE
+1950,Coast Counties Gas & Electric Company,NATURAL GAS,TRUE,TRUE,10.0,California,California,INTRASTATE
+1950,Pacific Gas & Electric Company,NATURAL GAS,TRUE,TRUE,506.0,California,California,INTRASTATE
+1950,Southern California Gas Company,NATURAL GAS,TRUE,TRUE,80.0,California,California,INTRASTATE
+1950,Southern Counties Gas Company,NATURAL GAS,TRUE,TRUE,5.0,California,California,INTRASTATE
+1950,City of Trinidad,NATURAL GAS,TRUE,FALSE,35.0,Colorado,Colorado,INTRASTATE
+1950,Colorado-Wyoming Gas Company,NATURAL GAS,TRUE,TRUE,27.0,Colorado,Colorado,INTRASTATE
+1950,Grand Valley Pipeline Company,NATURAL GAS,TRUE,FALSE,60.0,Colorado,Colorado,INTRASTATE
+1950,Northeastern Gas Transmission Company,NATURAL GAS,TRUE,FALSE,511.0,Connecticut,New Hampshire,INTERSTATE
+1950,Northeastern Gas Transmission Company,NATURAL GAS,TRUE,FALSE,411.0,Connecticut,UNK,INTERSTATE
+1950,Delaware Power and Light Company,NATURAL GAS,TRUE,TRUE,10.0,Delaware,Delaware,INTRASTATE
+1950,Georgia Natural Gas Company,NATURAL GAS,TRUE,FALSE,335.0,Alabama,Georgia,INTERSTATE
+1950,South Georgia Natural Gas Company,NATURAL GAS,TRUE,FALSE,527.0,Georgia,Florida,INTERSTATE
+1950,Egyptian Natural Gas Company,NATURAL GAS,TRUE,FALSE,40.0,Illinois,Illinois,INTRASTATE
+1950,Egyptian Natural Gas Company,NATURAL GAS,TRUE,FALSE,40.0,Illinois,Illinois,INTRASTATE
+1950,Illinois Gas Company,NATURAL GAS,TRUE,FALSE,18.0,Illinois,Illinois,INTRASTATE
+1950,Illinois Gas Company,NATURAL GAS,TRUE,FALSE,12.0,Illinois,Illinois,INTRASTATE
+1950,Interstate Power Company,NATURAL GAS,TRUE,FALSE,26.0,Illinois,Iowa,INTERSTATE
+1950,Citizen's Gas & Coke Utilities Company,NATURAL GAS,TRUE,FALSE,26.0,Indiana,Indiana,INTRASTATE
+1950,Northern Indiana Fuel & Light Company,NATURAL GAS,TRUE,FALSE,31.0,Indiana,Indiana,INTRASTATE
+1950,Southern Indiana Gas & Electric Company,NATURAL GAS,TRUE,FALSE,12.0,Indiana,Indiana,INTRASTATE
+1950,Northern Natural Gas Company,NATURAL GAS,TRUE,TRUE,37.0,Iowa,Iowa,INTRASTATE
