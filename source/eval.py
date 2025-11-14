@@ -16,6 +16,8 @@ from typing import get_args
 # -- Define functions ----------------------------------------------------------
 # ------------------------------------------------------------------------------
 
+# TODO: we should pass the config as an argument instead of importing it. also we should move write_log to utils
+
 
 def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_end=1950, filter_pg=None):
     """
@@ -39,6 +41,8 @@ def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_e
         pred_path), f"Predicted data file {pred_path} does not exist."
     assert os.path.exists(
         true_path), f"True data file {true_path} does not exist."
+
+    eval_log_dir = os.path.join(config.output_dir, "performance_evals")
 
     # Load the predicted and true data
     pred_data = pd.read_csv(pred_path)
@@ -193,17 +197,18 @@ def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_e
 
         # new complete natural gas
         true_pl = true_data_excl_unknown.loc[
-            (true_data_excl_unknown["Fuel Type"] == "natural gas") &
+            (true_data_excl_unknown["Fuel Type"] == "NATURAL GAS") &
             (true_data_excl_unknown["New Construction"] == "TRUE") &
             (true_data_excl_unknown["Construction Complete"] == "TRUE") & (
                 true_data_excl_unknown["Data Year"] == yr)
         ]
         pred_pl = pred_data_excl_unknown.loc[
-            (pred_data_excl_unknown["Fuel Type"] == "natural gas") &
+            (pred_data_excl_unknown["Fuel Type"] == "NATURAL GAS") &
             (pred_data_excl_unknown["New Construction"] == "TRUE") &
             (pred_data_excl_unknown["Construction Complete"] == "TRUE") & (
                 pred_data_excl_unknown["Data Year"] == yr)
         ]
+
         true_mi = true_pl['Pipeline Length'].sum()
         pred_mi = pred_pl['Pipeline Length'].sum()
         performance["mi_pct_err"]["New Complete Natural Gas by Year"][yr] = abs(
@@ -213,10 +218,10 @@ def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_e
 
         # new complete natural gas interstate
         true_pl_inter = true_pl.loc[
-            (true_pl["Interstate or Intrastate"] == "interstate")
+            (true_pl["Interstate or Intrastate"] == "INTERSTATE")
         ]
         pred_pl_inter = pred_pl.loc[
-            (pred_pl["Interstate or Intrastate"] == "interstate")
+            (pred_pl["Interstate or Intrastate"] == "INTERSTATE")
         ]
         true_mi_inter = true_pl_inter['Pipeline Length'].sum()
         pred_mi_inter = pred_pl_inter['Pipeline Length'].sum()
@@ -227,10 +232,10 @@ def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_e
 
         # new complete natural gas intrastate
         true_pl_intra = true_pl.loc[
-            (true_pl["Interstate or Intrastate"] == "intrastate")
+            (true_pl["Interstate or Intrastate"] == "INTRASTATE")
         ]
         pred_pl_intra = pred_pl.loc[
-            (pred_pl["Interstate or Intrastate"] == "intrastate")
+            (pred_pl["Interstate or Intrastate"] == "INTRASTATE")
         ]
         true_mi_intra = true_pl_intra['Pipeline Length'].sum()
         pred_mi_intra = pred_pl_intra['Pipeline Length'].sum()
@@ -240,9 +245,9 @@ def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_e
             pred_mi_intra / true_mi_intra)
 
     # Log the evaluation results
-    # TODO: create separate folder for performance evaluations
+    # TODO: create separate folder for performance evaluations and rename the log file something better
     write_log(
-        f"Evaluation results for {pred_path} vs {true_path}:\n{json.dumps(performance, indent=4)}")
+        f"Evaluation results for {pred_path} vs {true_path}:\n{json.dumps(performance, indent=4)}", log_dir=eval_log_dir)
 
     print("Evaluation complete.")
 
@@ -250,5 +255,10 @@ def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_e
 
 
 if __name__ == "__main__":
-    eval_performance(pred_path="outputs/gemini_output/intermediate_2025-11-12-18-20-41_by1pgs/pg5.csv",
-                     true_path="outputs/1947_pg2_groundtruth_clean.xlsx", filter_year_start=1946, filter_year_end=1946, filter_pg=None)
+    eval_performance(
+        pred_path="outputs/gemini_output/intermediate_2025-11-13-13-51-17_by1pgs/pg36.csv",
+        true_path="outputs/1951_pg2_handcoded_JW_cleaned.csv",
+        filter_year_start=1950,
+        filter_year_end=1950,
+        filter_pg=None
+    )

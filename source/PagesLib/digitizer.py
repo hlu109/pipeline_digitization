@@ -189,9 +189,9 @@ Returns:
     dict or None: Parsed structured data if successful, otherwise None.
 """
     # limit output size
-    max_token_output = 40000
-    max_retries = 5
-    base_wait = 20  # this is in seconds!
+    max_token_output = 80000
+    max_retries = 7
+    base_wait = 10  # this is in seconds!
 
     for attempt in range(max_retries):
         print(f"      Attempt {attempt + 1} to extract data...")
@@ -235,7 +235,8 @@ Returns:
 
             return response.parsed
 
-        # Add in a wat time response if the model is temporarily unavailable (error 503)
+        # Add in a wait time response if the model is temporarily unavailable (error 503)
+        # TODO: add wait time to handle rate limit errors
         except Exception as e:
             if '503' in str(e):
                 wait_time = base_wait * (2**attempt)
@@ -265,26 +266,28 @@ def process_pages(genai_client,
                   png=False,
                   debug=False):
     """
-Extracts structured data from each page in the document and saves results.
+    Extracts structured data from each page in the document and saves results.
 
-Parameters:
-    genai_client: Gemini API client.
-    file_path (str): Path to the PDF file.
-    model (BaseModel): Data model for structuring extracted content.
-    prompt_text (str): Prompt text for the API.
-    model_id (str): Gemini model ID.
-    total_pages (int): Total number of pages to process.
-    start_page (int): Starting page number.
-    outfile_path (str): Path to save extracted data.
-    intermediate_dir (str): Folder for intermediate outputs.
-    page_window (int): Number of surrounding pages to include.
-    page_placement (str): Placement of the target page within the window.
-    png (bool): If True, converts pages to PNG before upload.
-    debug (bool): Enables debug logging.
+    Parameters:
+        genai_client: Gemini API client.
+        file_path (str): Path to the PDF file.
+        model (BaseModel): Data model for structuring extracted content.
+        prompt_text (str): Prompt text for the API.
+        model_id (str): Gemini model ID.
+        total_pages (int): Total number of pages to process.
+        start_page (int): Starting page number.
+        outfile_path (str): Path to save extracted data.
+        intermediate_dir (str): Folder for intermediate outputs.
+        page_window (int): Number of surrounding pages to include.
+        page_placement (str): Placement of the target page within the window.
+        png (bool): If True, converts pages to PNG before upload.
+        debug (bool): Enables debug logging.
 
-Returns:
-    pd.DataFrame: Aggregated structured data extracted from the document.
-"""
+    Returns:
+        pd.DataFrame: Aggregated structured data extracted from the document.
+    """
+    # TODO: add handling if there are errors for one page but not other pages
+    # include a print and a log of failed pages
 
     all_dataframes = []
     max_retries = 5  # Set max retries to prevent infinite loops

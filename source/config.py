@@ -1,13 +1,19 @@
 import os
 from datetime import datetime
+from PagesLib.Page import PagePrivate, PageGov
+
 # ------------------------------------------------------------------------------
 # SET PARAMETERS ---------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
+gov = False  # True for government pipelines, False for private pipelines
+
 # Set File Paths -------------------------------------------
 # Define which pdf input to use
 # Give entire path to the file; expecting a .pdf
-INPUT_FILE_PATH = "inputs/pipeline_scans/1946-1951_combined.pdf"
+private_file_path = "inputs/pipeline_scans/1943-1951_combined_private_only.pdf"
+government_file_path = "inputs/pipeline_scans/1943-1945_combined_gov_only.pdf"
+INPUT_FILE_PATH = government_file_path if gov else private_file_path
 
 # Define your output file base name (no file extension)
 OUTPUT_FILE_BASE_NAME = os.path.splitext(os.path.basename(INPUT_FILE_PATH))[0]
@@ -19,10 +25,13 @@ log_dir = os.path.join(output_dir, "logs")
 
 # SET GEMINI PROMPT ------------------------------------------------------------
 # Indicate the file name for the prompt to use
-# prompt_text_name = "gemini_prompt_several_pages.txt"
-prompt_text_name = "pipeline_base_prompt.txt"
+prompt_text_name = "pipeline_gov_prompt.txt" if gov else "pipeline_base_prompt.txt"
+# prompt_text_name = "pipeline_base_prompt.txt"
+# prompt_text_name = "pipeline_gov_prompt.txt"
 prompt_text_path = os.path.join("source/prompts", prompt_text_name)
 
+# Set Page Schema -----------------------------------
+page_schema = PageGov if gov else PagePrivate
 
 # Set API Parameters -------------------------------------------
 # Define the model you are going to use (flash is free with 1,500 requests per day)

@@ -10,8 +10,7 @@ import pandas as pd
 
 import config
 from config import write_log
-from PagesLib import Page, digitizer
-from PagesLib.Page import PagePrivate, PageGov
+from PagesLib import digitizer
 from eval import eval_performance
 
 # Note: API requires an API key, saved in GEMINI_API_KEY.txt in this directory
@@ -72,8 +71,7 @@ def main():
     # Run digitizer process ------------------------------------------
     df = digitizer.process_pages(client,
                                  filepath,
-                                 model=PagePrivate,
-                                 #  model=PageGov,
+                                 model=config.page_schema,
                                  prompt_text=task,
                                  model_id=config.gemini_model_id,
                                  total_pages=n_pages,
@@ -84,7 +82,7 @@ def main():
                                  page_placement=config.page_placement,
                                  png=config.png)
     write_log("PROCESS COMPLETE")
-    print("\n Digitizing Directory pages task complete !! ")
+    print("\n Digitizing task complete !! ")
 
     # --------------------------------------------------------------------------
     # --------------------------------------------------------------------------

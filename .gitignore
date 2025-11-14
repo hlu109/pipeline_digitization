@@ -1,4 +1,6 @@
-
+# files that we don't want cluttering the repository
+inputs/*
+outputs/*
 
 # API keys and other secret information
 secret/*

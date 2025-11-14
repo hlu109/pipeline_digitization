@@ -1,12 +1,10 @@
 import pandas as pd
-from chardet.cli.chardetect import description_of  # not sure if this is used?
 from pydantic import BaseModel, Field, StringConstraints
 from typing import List, Dict, Optional, Union, Literal, Any, Annotated
 
 
 class Entry(BaseModel):
     company: str = Field(description="Pipeline Company")
-    # gov: Literal["true", "false", "UNK", "NA"] = Field(description="Government Project")
     fuel: Literal["NATURAL GAS", "GAS", "GASOLINE", "CRUDE", "PETROLEUM", "OIL",
                   "PRODUCT", "OTHER", "UNK", "NA"] = Field(description="Fuel Type")
     new_construction: Literal["TRUE", "FALSE", "UNK",
@@ -14,34 +12,36 @@ class Entry(BaseModel):
     construction_complete: Literal["TRUE", "FALSE", "UNK", "NA"] = Field(
         description="Construction Complete")
     # TODO: add handling for "almost complete" (we should check if it appears in the following year's data)
-    length: float = Field(description="Pipeline Length")
+    diameter: str = Field(description="Pipeline Diameter")
+    length_by_diameter: str = Field(description="Pipeline Length by Diameter")
+    length_total: float = Field(description="Total Pipeline Length")
     origin_state: str = Field(description="Origin State")
     terminus_state: str = Field(description="Terminus State")
-    # origin_city: str = Field(description="Origin City")
-    # terminus_city: str = Field(description="Terminus City")
-    # origin_county: str = Field(description="Origin County")
-    # terminus_county: str = Field(description="Terminus County")
-    # other_origin_description: str = Field(
-    #     description="Other Origin Description")
-    # other_terminus_description: str = Field(
-    #     description="Other Terminus Description")
+    origin_city: str = Field(description="Origin City")
+    terminus_city: str = Field(description="Terminus City")
+    origin_county: str = Field(description="Origin County")
+    terminus_county: str = Field(description="Terminus County")
+    other_origin_description: str = Field(
+        description="Other Origin Description")
+    other_terminus_description: str = Field(
+        description="Other Terminus Description")
     inter_or_intra: Literal["INTERSTATE", "INTRASTATE", "UNK", "NA"] = Field(
         description="Interstate or Intrastate")
-    # parallel_or_loop: bool = Field(description="Parallel or Loop")
+    parallel_or_loop: Literal["TRUE", "FALSE", "UNK",
+                              "NA"] = Field(description="Parallel or Loop")
+    function: Literal["TRANSMISSION", "DISTRIBUTION", "GATHERING",
+                      "FIELDING", "OTHER", "UNK", "NA"] = Field(
+                          description="Function")
+    connection: Literal["TRUE", "FALSE", "UNK",
+                        "NA"] = Field(description="Connection")
 
 
 class EntryPrivate(Entry):
     state_heading: str = Field(description="State Heading")
 
-    # TODO: add handling for 1943 section with random prose about barrels
-
 
 class EntryGov(Entry):
-    project_num: int = Field(description="Project Number")
-
-
-class EntryCombined(Entry):
-    state_heading: str = Field(description="State Heading")
+    # TODO: add handling for 1943 section with random prose about barrels
     project_num: int = Field(description="Project Number")
 
 
@@ -60,17 +60,51 @@ class PageGov(Page):
         description="The list of entries on the page")
 
 
-class PageCombined(Page):
-    entries: list[EntryCombined] = Field(
-        description="The list of entries on the page")
-
-
-# class Directory(BaseModel):
-#     p: list[Page] = Field(description="The list of pages in the pdf")
-
-
 # Function to convert Directory to a DataFrame
 def page_to_dataframe(page: Page):
+    if isinstance(page, PageGov):
+        return page_to_df_gov(page)
+    elif isinstance(page, PagePrivate):
+        return page_to_df_private(page)
+    else:
+        raise ValueError("Unsupported page model type")
+
+
+def page_to_df_gov(page: Page):
+    data = []
+
+    for entry in page.entries:
+        # TODO: retrieve the column name from the entry field description
+        # col_names = [Entry.model_fields[vars].description for vars in Entry.model_fields.keys()]
+        data.append({
+            "Data Year": page.yr,
+            "Page Number": page.pgnum,
+            "Project Number": entry.project_num,
+            "Pipeline Company": entry.company,
+            "Fuel Type": entry.fuel,
+            "New Construction": entry.new_construction,
+            "Construction Complete": entry.construction_complete,
+            "Pipeline Length by Diameter": entry.length_by_diameter,
+            "Total Pipeline Length": entry.length_total,
+            "Origin State": entry.origin_state,
+            "Terminus State": entry.terminus_state,
+            "Origin City": entry.origin_city,
+            "Terminus City": entry.terminus_city,
+            "Origin County": entry.origin_county,
+            "Terminus County": entry.terminus_county,
+            "Other Origin Description": entry.other_origin_description,
+            "Other Terminus Description": entry.other_terminus_description,
+            "Interstate or Intrastate": entry.inter_or_intra,
+            "Parallel or Loop": entry.parallel_or_loop,
+            "Function": entry.function,
+            "Connection": entry.connection,
+        })
+
+    df = pd.DataFrame(data)
+    return df
+
+
+def page_to_df_private(page: Page):
     data = []
 
     for entry in page.entries:
@@ -80,15 +114,24 @@ def page_to_dataframe(page: Page):
             "Data Year": page.yr,
             "Page Number": page.pgnum,
             "State Heading": entry.state_heading,
-            # TODO: add handling for gov/private/combined
             "Pipeline Company": entry.company,
             "Fuel Type": entry.fuel,
             "New Construction": entry.new_construction,
             "Construction Complete": entry.construction_complete,
-            "Pipeline Length": entry.length,
+            "Pipeline Length by Diameter": entry.length_by_diameter,
+            "Total Pipeline Length": entry.length_total,
             "Origin State": entry.origin_state,
             "Terminus State": entry.terminus_state,
+            "Origin City": entry.origin_city,
+            "Terminus City": entry.terminus_city,
+            "Origin County": entry.origin_county,
+            "Terminus County": entry.terminus_county,
+            "Other Origin Description": entry.other_origin_description,
+            "Other Terminus Description": entry.other_terminus_description,
             "Interstate or Intrastate": entry.inter_or_intra,
+            "Parallel or Loop": entry.parallel_or_loop,
+            "Function": entry.function,
+            "Connection": entry.connection,
         })
 
     df = pd.DataFrame(data)
