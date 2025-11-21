@@ -1,0 +1,73 @@
+Extract structured data from this file and return it following the **Page schema**.
+
+---
+
+### ** General Instructions**
+- The document contains data in the format of **paragraph entries categorized by state and formatted into columns**.
+- The page heading contains the year. 
+- Text is formatted in two or three columns. 
+- Data is grouped by state, which is given in sub-headers in the columns. The paragraphs that follow a state sub-heading either have an origin and/or terminus in the state. 
+- Within each state grouping, projects are listed by paragraph. Floating indents indicate the separation of paragraphs. 
+- Usually, one paragraph contains descriptions for a single pipeline project, which should correspond to a single EntryGov object from the Page scheme. However, sometimes one paragraph will describe multiple, distinct pipeline projects; in these cases there will be multiple EntryGov objects, each corresponding to a unique and distinct project described in the paragraph. **Important consideration: if a paragraph describes a pipeline that is interstate from end to end, but consists of multiple segments, some of which may be intrastate and some which may be interstate, the entire pipeline should be listed in a single entry as an interstate line.**
+- ** All letters are in the English alphabet and all words and names are in the English language**
+- **Do NOT omit any projects described in the entries**. 
+
+---
+
+### ** Page Handling Rules**
+- **Do not omit any projects that are described in the text, and do not create or make up any projects.**
+
+---
+
+### **Extraction Rules**
+- **Project Number** --> Found in sub-headers of the text columns, which are centered and bolded. If the heading is missing, enter "UNK". 
+
+- **Pipeline Company Name --> The company name is sometimes found in the first line of the paragraph, but not always. Sometimes, the pipeline company name is mentioned as a shorthand in the possessive form (e.g., "Sun's" or "Stanolind's"). This is sometimes bolded, though not always. Be careful not to confuse the pipeline company with the location, which is also sometimes bolded. There are sometimes multiple companies, if this is the case then separate the names with a semicolon followed by a space. Only include the primary pipeline companies with ownership over the project. Ignore any mentions of contractors or construction company. 
+
+- **Fuel Type Raw** --> The type of fuel which is explicitly described in the paragraph. *Use the original terminology* in the text, (i.e., if the paragraph uses the term "gasoline", do not simplify this to "gas", or vice versa). For data in 1950, beware that the fuel type is actually in the header and not explicitly described in each entry paragraph. If the fuel type is not explicitly mentioned, enter "UNK". If the pipeline has been converted, enter the new fuel type, not the old fuel type. 
+
+- **Fuel Type Inferred** --> If the Fuel Type Raw is *not* "UNK" and *not* "GAS", then directly copy the entry from Fuel Type Raw. Otherwise, if the Fuel Type Raw was "UNK", please try to infer the fuel type. If the Fuel Type Raw was "GAS", then please infer whether the fuel is actually "GASOLINE", "NATURAL GAS", or "GAS (AMBIGUOUS)". Please use contextual clues as well as knowledge about the company, including the company name and other publicly available information about any commodities the company specializes in. **However, if there is any uncertainty about the fuel type, please write "UNK"**, because the accuracy of the fuel type is very important. **Do not make up any information.** If you must infer based on historical knowledge of the company, **be sure not to confuse similar-sounding company names.** You may also use volumetric units to infer fuel type (for instance, "barrel" would rule out natural gas). "PETROLEUM (AMBIGUOUS)" is a catch-all term for liquid fuel types that can't be further distinguished (for instance, if a company may deal in multiple types of petroleum products that can't be inferred in greater detail). 
+
+- **Construction Complete** --> The construction completion status can usually be inferred from verb usage. For instance, this is true if the company "completed", "laid", or "installed" the pipeline (though other similar verbs may also be used). This is false if, for example, the entry indicates the company "proposed", "is building", "is constructing", "abandoned", "held", or paused the pipeline (though other verbs may also be used). 
+
+- **Total Pipeline Length** --> The total mileage of the pipeline, which is described explicitly in almost every paragraph. May be written as a string, integer, fraction, or decimal in the paragraph. Your output should be numeric values. If this information cannot be found, enter -1. 
+
+- **Origin State** --> The state of the pipeline origin. This is usually not described explicitly in the paragraph and must be inferred from the state heading, origin city, origin county, or other origin descriptions. The state heading should correspond to either the origin state and/or the terminus state, but it does not always correspond to both; for instance, sometimes it only corresponds to the terminus state. If this information cannot be determined, enter "UNK". 
+
+- **Terminus State** --> The state of the pipeline terminus. This is usually not described explicitly in the paragraph and must be inferred from the state heading, terminus city, terminus county, or other terminus descriptions. The state heading should correspond to either the origin state and/or the terminus state, but it does not always correspond to both. If this information cannot be determined, enter "UNK". 
+
+- **Interstate or Intrastate** --> Whether the pipeline is interstate or intrastate. This must be inferred from the origin state and terminus state, because it is never explicitly stated in the text. **Important consideration: if a paragraph describes a pipeline that is interstate from end to end, but consists of multiple segments, some of which may be intrastate and some which may be interstate, the entire pipeline should be listed in a single entry as an interstate line.**
+
+- **New Construction** --> True if the project constructs a new line, False otherwise. New construction is often implied by verbs such as, but not limited to, "constructed", "completed", "constructing", "laid", or "installed" lines. You may generally infer that the construction is new unless otherwise indicated by terminology such as "reversed", "converted", "reconditioned", or other language indicating a modification of an existing pipeline.
+
+- For any string values that cannot be determined from the given information, enter "UNK". For any string values that are not applicable, enter "NA". 
+
+- For any numeric values that cannot be determined from the given information, enter the value -1. For any string values that are not applicable, enter the value -2. 
+
+- For any variables with multiple values, separate the values using a semicolon followed by a space. 
+
+---
+
+### **Output Rules**
+- For any string values that cannot be determined from the given information, enter "UNK". For any string values that are not applicable for a paragraph, enter "NA". 
+- For any numeric values that cannot be determined from the given information, enter the value -1. For any numeric values that are not applicable for a paragraph, enter the value -2. 
+- For any variables with multiple values, separate the values using a semicolon followed by a space. 
+- **Do NOT add in any made up data that does not appear in the text or can be inferred from the text.**
+- **Follow the response schema provided** (`Page`).
+- **Use knowledge of U.S. states, counties, and cities to correct minor spelling errors or scanning distortions in the names**
+  - Do not modify valid state, county, or city names
+  - Do not make major changes to the string if you cannot match the string to a valid state, county, or city name
+- all letters are in the English alphabet
+- **Most importantly, do NOT omit any projects.**
+
+---
+
+### ** Important Constraints**
+- **Ensure all states and projects from the page are included.**
+- **Do NOT omit any projects.**
+- **Use knowledge of U.S. states, counties, and cities to correct minor spelling errors or scanning distortions in the names**
+  - Do not modify valid state, county, or city names
+  - Do not make major changes to the string if you cannot match the string to a valid state, county, or city name
+  - Within each page, state headers are listed in alphabetical order.
+- ** If you cannot figure out a row value then enter "UNK" for string values or -1 for numeric values.**
+- ** If a row value is not applicable for a particular project, then enter "NA" for string values or -2 for numeric values.**

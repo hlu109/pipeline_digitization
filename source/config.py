@@ -1,22 +1,34 @@
 import os
 from datetime import datetime
-from PagesLib.Page import PagePrivate, PageGov
+from PagesLib.Page import PagePrivateCore, PageGovCore, PagePrivateExtended, PageGovExtended
 
 # ------------------------------------------------------------------------------
 # SET PARAMETERS ---------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
 gov = False  # True for government pipelines, False for private pipelines
+# True to use all variables, False to use only core variables
+extended_variables = True
+
+# Set API Parameters -------------------------------------------
+# Define the model you are going to use (flash is free with 1,500 requests per day)
+# gemini_model_id = "gemini-2.0-flash"
+# gemini_model_id = "gemini-2.5-pro"
+# gemini_model_id = "gemini-2.5-flash"
+# gemini_model_id = "gemini-2.5-pro"
+gemini_model_id = "gemini-3.0-pro-preview"
+
 
 # Set File Paths -------------------------------------------
 # Define which pdf input to use
 # Give entire path to the file; expecting a .pdf
-private_file_path = "inputs/pipeline_scans/1943-1951_combined_private_only.pdf"
-government_file_path = "inputs/pipeline_scans/1943-1945_combined_gov_only.pdf"
+private_file_path = "inputs/pipeline_scans/private_1943_1951.pdf"
+government_file_path = "inputs/pipeline_scans/gov_1943_1945.pdf"
 INPUT_FILE_PATH = government_file_path if gov else private_file_path
 
 # Define your output file base name (no file extension)
-OUTPUT_FILE_BASE_NAME = os.path.splitext(os.path.basename(INPUT_FILE_PATH))[0]
+OUTPUT_FILE_BASE_NAME = os.path.splitext(os.path.basename(INPUT_FILE_PATH))[
+    0] + ("_extended_vars" if extended_variables else "_core_vars")
 
 # SET OUTPUT PATH  -------------------------------------------------------------
 output_dir = "outputs"
@@ -25,20 +37,16 @@ log_dir = os.path.join(output_dir, "logs")
 
 # SET GEMINI PROMPT ------------------------------------------------------------
 # Indicate the file name for the prompt to use
-prompt_text_name = "pipeline_gov_prompt.txt" if gov else "pipeline_base_prompt.txt"
-# prompt_text_name = "pipeline_base_prompt.txt"
-# prompt_text_name = "pipeline_gov_prompt.txt"
+prompt_text_name = f"pipeline_{'extended' if extended_variables else 'core'}_prompt_{"gov" if gov else "priv"}.txt"
 prompt_text_path = os.path.join("source/prompts", prompt_text_name)
 
 # Set Page Schema -----------------------------------
-page_schema = PageGov if gov else PagePrivate
+if extended_variables:
+    page_schema = PageGovExtended if gov else PagePrivateExtended
+else:
+    page_schema = PageGovCore if gov else PagePrivateCore
 
-# Set API Parameters -------------------------------------------
-# Define the model you are going to use (flash is free with 1,500 requests per day)
-# gemini_model_id = "gemini-2.0-flash"
-# gemini_model_id = "gemini-2.5-pro"
-gemini_model_id = "gemini-2.5-flash"
-
+# Page Parameters -------------------------------------------
 # Set the number of pages before and after page N to feed into Gemini when digitizing page N
 page_window = 1
 page_placement = "top"
@@ -59,11 +67,12 @@ png = False
 
 # save each execution with a separate file suffix --- to ensure nothing is over-written
 timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-identifier = f"{timestamp}_by{page_window}pgs"
+identifier = timestamp
 OUTPUT_FILE_NAME = OUTPUT_FILE_BASE_NAME + "_" + identifier + ".csv"
 
 # folder for intermediate results
-intermediate_dir = os.path.join(results_dir, "intermediate_" + identifier)
+intermediate_dir = os.path.join(
+    results_dir, OUTPUT_FILE_BASE_NAME + "_" + identifier)
 
 # TODO: move this to utils
 # Define logging function

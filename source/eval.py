@@ -8,8 +8,8 @@ import json
 
 import config
 from config import write_log
-from PagesLib import Page, digitizer
-from PagesLib.Page import Entry, PagePrivate, PageGov
+# from PagesLib import Page, digitizer
+from PagesLib.Page import Entry
 from typing import get_args
 
 # ------------------------------------------------------------------------------
