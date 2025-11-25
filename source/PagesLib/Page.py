@@ -110,17 +110,17 @@ def page_to_df_gov_core(page: Page):
         # col_names = [Entry.model_fields[vars].description for vars in Entry.model_fields.keys()]
         data.append({
             "Data Year": page.yr,
-            "Page Number": page.pgnum,
             "Project Number": entry.project_num,
             "Pipeline Company": entry.company,
+            "Construction Complete": entry.construction_complete,
+            "New Construction": entry.new_construction,
+            "Total Pipeline Length": entry.length_total,
             "Fuel Type Raw": entry.fuel_original,
             "Fuel Type Inferred": entry.fuel_corrected,
-            "New Construction": entry.new_construction,
-            "Construction Complete": entry.construction_complete,
-            "Total Pipeline Length": entry.length_total,
             "Origin State": entry.origin_state,
             "Terminus State": entry.terminus_state,
             "Interstate or Intrastate": entry.inter_or_intra,
+            "Page Number": page.pgnum,
         })
 
     df = pd.DataFrame(data)
@@ -135,17 +135,17 @@ def page_to_df_private_core(page: Page):
         # col_names = [Entry.model_fields[vars].description for vars in Entry.model_fields.keys()]
         data.append({
             "Data Year": page.yr,
-            "Page Number": page.pgnum,
             "State Heading": entry.state_heading,
             "Pipeline Company": entry.company,
+            "Construction Complete": entry.construction_complete,
+            "New Construction": entry.new_construction,
+            "Total Pipeline Length": entry.length_total,
             "Fuel Type Raw": entry.fuel_original,
             "Fuel Type Inferred": entry.fuel_corrected,
-            "New Construction": entry.new_construction,
-            "Construction Complete": entry.construction_complete,
-            "Total Pipeline Length": entry.length_total,
             "Origin State": entry.origin_state,
             "Terminus State": entry.terminus_state,
             "Interstate or Intrastate": entry.inter_or_intra,
+            "Page Number": page.pgnum,
         })
 
     df = pd.DataFrame(data)
@@ -160,29 +160,29 @@ def page_to_df_gov_extended(page: Page):
         # col_names = [Entry.model_fields[vars].description for vars in Entry.model_fields.keys()]
         data.append({
             "Data Year": page.yr,
-            "Page Number": page.pgnum,
             "Project Number": entry.project_num,
             "Pipeline Company": entry.company,
-            "Fuel Type Raw": entry.fuel_original,
-            "Fuel Type Inferred": entry.fuel_corrected,
-            "New Construction": entry.new_construction,
             "Construction Complete": entry.construction_complete,
+            "New Construction": entry.new_construction,
             "Total Pipeline Length": entry.length_total,
             "Pipeline Length by Diameter": entry.length_by_diameter,
             "Pipeline Diameter": entry.diameter,
-            "Origin State": entry.origin_state,
-            "Terminus State": entry.terminus_state,
+            "Fuel Type Raw": entry.fuel_original,
+            "Fuel Type Inferred": entry.fuel_corrected,
             "Origin City": entry.origin_city,
-            "Terminus City": entry.terminus_city,
             "Origin County": entry.origin_county,
-            "Terminus County": entry.terminus_county,
+            "Origin State": entry.origin_state,
             "Other Origin Description": entry.other_origin_description,
+            "Terminus City": entry.terminus_city,
+            "Terminus County": entry.terminus_county,
+            "Terminus State": entry.terminus_state,
             "Other Terminus Description": entry.other_terminus_description,
             "Interstate or Intrastate": entry.inter_or_intra,
+            "FPC": entry.fpc,
             "Parallel or Loop": entry.parallel_or_loop,
             "Function": entry.function,
             "Connection": entry.connection,
-            "FPC": entry.fpc,
+            "Page Number": page.pgnum,
         })
 
     df = pd.DataFrame(data)
@@ -197,29 +197,29 @@ def page_to_df_private_extended(page: Page):
         # col_names = [Entry.model_fields[vars].description for vars in Entry.model_fields.keys()]
         data.append({
             "Data Year": page.yr,
-            "Page Number": page.pgnum,
             "State Heading": entry.state_heading,
             "Pipeline Company": entry.company,
-            "Fuel Type Raw": entry.fuel_original,
-            "Fuel Type Inferred": entry.fuel_corrected,
-            "New Construction": entry.new_construction,
             "Construction Complete": entry.construction_complete,
+            "New Construction": entry.new_construction,
             "Total Pipeline Length": entry.length_total,
             "Pipeline Length by Diameter": entry.length_by_diameter,
             "Pipeline Diameter": entry.diameter,
-            "Origin State": entry.origin_state,
-            "Terminus State": entry.terminus_state,
+            "Fuel Type Raw": entry.fuel_original,
+            "Fuel Type Inferred": entry.fuel_corrected,
             "Origin City": entry.origin_city,
-            "Terminus City": entry.terminus_city,
             "Origin County": entry.origin_county,
-            "Terminus County": entry.terminus_county,
+            "Origin State": entry.origin_state,
             "Other Origin Description": entry.other_origin_description,
+            "Terminus City": entry.terminus_city,
+            "Terminus County": entry.terminus_county,
+            "Terminus State": entry.terminus_state,
             "Other Terminus Description": entry.other_terminus_description,
             "Interstate or Intrastate": entry.inter_or_intra,
+            "FPC": entry.fpc,
             "Parallel or Loop": entry.parallel_or_loop,
             "Function": entry.function,
             "Connection": entry.connection,
-            "FPC": entry.fpc,
+            "Page Number": page.pgnum,
         })
 
     df = pd.DataFrame(data)
