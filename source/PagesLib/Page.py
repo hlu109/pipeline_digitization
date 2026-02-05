@@ -47,6 +47,16 @@ class ExtendedEntry(CoreEntry):
                         "NA"] = Field(description="Connection")
 
 
+class ExtendedEntry1951_mid1952(ExtendedEntry):
+    construction_status_heading: str = Field(description="Construction Status Heading")
+    fuel_type_heading: str = Field(description="Fuel Type Heading")
+    fuel_original: Literal["NATURAL GAS", "CRUDE",
+                           "PRODUCT", "UNK", "NA"] = Field(description="Fuel Type Raw")
+    fuel_corrected: Literal["NATURAL GAS", "CRUDE",
+                            "PRODUCT", "UNK", "NA"
+                            ] = Field(description="Fuel Type Inferred")
+
+
 class CoreEntryPrivate(CoreEntry):
     state_heading: str = Field(description="State Heading")
 
@@ -68,6 +78,12 @@ class Page(BaseModel):
     yr: int = Field(description="Data Year")
 
 
+class PageMonthly(BaseModel):
+    pgnum: int = Field(description="Page Number")
+    yr: int = Field(description="Data Year")
+    month: int = Field(description="Month")
+
+
 class PagePrivateCore(Page):
     entries: list[CoreEntryPrivate] = Field(
         description="The list of entries on the page")
@@ -75,6 +91,11 @@ class PagePrivateCore(Page):
 
 class PagePrivateExtended(Page):
     entries: list[ExtendedEntryPrivate] = Field(
+        description="The list of entries on the page")
+
+
+class PagePrivate1951_mid1952(PageMonthly):
+    entries: list[ExtendedEntry1951_mid1952] = Field(
         description="The list of entries on the page")
 
 
@@ -98,6 +119,8 @@ def page_to_dataframe(page: Page):
         return page_to_df_gov_extended(page)
     elif isinstance(page, PagePrivateExtended):
         return page_to_df_private_extended(page)
+    elif isinstance(page, PagePrivate1951_mid1952):
+        return page_to_df_private_1951_mid1952(page)
     else:
         raise ValueError("Unsupported page model type")
 
@@ -198,6 +221,45 @@ def page_to_df_private_extended(page: Page):
         data.append({
             "Data Year": page.yr,
             "State Heading": entry.state_heading,
+            "Pipeline Company": entry.company,
+            "Construction Complete": entry.construction_complete,
+            "New Construction": entry.new_construction,
+            "Total Pipeline Length": entry.length_total,
+            "Pipeline Length by Diameter": entry.length_by_diameter,
+            "Pipeline Diameter": entry.diameter,
+            "Fuel Type Raw": entry.fuel_original,
+            "Fuel Type Inferred": entry.fuel_corrected,
+            "Origin City": entry.origin_city,
+            "Origin County": entry.origin_county,
+            "Origin State": entry.origin_state,
+            "Other Origin Description": entry.other_origin_description,
+            "Terminus City": entry.terminus_city,
+            "Terminus County": entry.terminus_county,
+            "Terminus State": entry.terminus_state,
+            "Other Terminus Description": entry.other_terminus_description,
+            "Interstate or Intrastate": entry.inter_or_intra,
+            "FPC": entry.fpc,
+            "Parallel or Loop": entry.parallel_or_loop,
+            "Function": entry.function,
+            "Connection": entry.connection,
+            "Page Number": page.pgnum,
+        })
+
+    df = pd.DataFrame(data)
+    return df
+
+
+def page_to_df_private_1951_mid1952(page: PageMonthly):
+    data = []
+
+    for entry in page.entries:
+        # TODO: retrieve the column name from the entry field description
+        # col_names = [Entry.model_fields[vars].description for vars in Entry.model_fields.keys()]
+        data.append({
+            "Data Year": page.yr,
+            "Month": page.month,
+            "Construction Status Heading": entry.construction_status_heading,
+            "Fuel Type Heading": entry.fuel_type_heading,
             "Pipeline Company": entry.company,
             "Construction Complete": entry.construction_complete,
             "New Construction": entry.new_construction,

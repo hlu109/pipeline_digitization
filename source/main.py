@@ -11,7 +11,7 @@ import pandas as pd
 import config
 from config import write_log
 from PagesLib import digitizer
-from eval import eval_performance
+from convert import csv_to_xlsx
 
 # Note: API requires an API key, saved in GEMINI_API_KEY.txt in this directory
 
@@ -91,3 +91,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    csv_to_xlsx(config.intermediate_dir) # make copies of all the csvs as xlsx
+

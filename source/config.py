@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from PagesLib.Page import PagePrivateCore, PageGovCore, PagePrivateExtended, PageGovExtended
+from PagesLib.Page import PagePrivateCore, PageGovCore, PagePrivateExtended, PageGovExtended, PagePrivate1951_mid1952
 
 # ------------------------------------------------------------------------------
 # SET PARAMETERS ---------------------------------------------------------------
@@ -13,18 +13,20 @@ extended_variables = True
 # Set API Parameters -------------------------------------------
 # Define the model you are going to use (flash is free with 1,500 requests per day)
 # gemini_model_id = "gemini-2.0-flash"
-# gemini_model_id = "gemini-2.5-pro"
 # gemini_model_id = "gemini-2.5-flash"
 # gemini_model_id = "gemini-2.5-pro"
-gemini_model_id = "gemini-3.0-pro-preview"
+# gemini_model_id = "gemini-3-flash-preview"
+gemini_model_id = "gemini-3-pro-preview"
 
 
 # Set File Paths -------------------------------------------
 # Define which pdf input to use
 # Give entire path to the file; expecting a .pdf
 private_file_path = "inputs/pipeline_scans/private_1943_1951.pdf"
+private_51_52_file_path = "inputs/pipeline_scans/private_1951_mid1952.pdf"
 government_file_path = "inputs/pipeline_scans/gov_1943_1945.pdf"
-INPUT_FILE_PATH = government_file_path if gov else private_file_path
+# INPUT_FILE_PATH = government_file_path if gov else private_file_path
+INPUT_FILE_PATH = private_51_52_file_path
 
 # Define your output file base name (no file extension)
 OUTPUT_FILE_BASE_NAME = os.path.splitext(os.path.basename(INPUT_FILE_PATH))[
@@ -37,14 +39,16 @@ log_dir = os.path.join(output_dir, "logs")
 
 # SET GEMINI PROMPT ------------------------------------------------------------
 # Indicate the file name for the prompt to use
-prompt_text_name = f"pipeline_{'extended' if extended_variables else 'core'}_prompt_{"gov" if gov else "priv"}.txt"
+# prompt_text_name = f"pipeline_{'extended' if extended_variables else 'core'}_prompt_{"gov" if gov else "priv"}.txt"
+prompt_text_name = "pipeline_extended_1951_mid1952_prompt.txt"
 prompt_text_path = os.path.join("source/prompts", prompt_text_name)
 
 # Set Page Schema -----------------------------------
-if extended_variables:
-    page_schema = PageGovExtended if gov else PagePrivateExtended
-else:
-    page_schema = PageGovCore if gov else PagePrivateCore
+# if extended_variables:
+#     page_schema = PageGovExtended if gov else PagePrivateExtended
+# else:
+#     page_schema = PageGovCore if gov else PagePrivateCore
+page_schema = PagePrivate1951_mid1952
 
 # Page Parameters -------------------------------------------
 # Set the number of pages before and after page N to feed into Gemini when digitizing page N

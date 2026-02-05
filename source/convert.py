@@ -22,35 +22,41 @@ def csv_to_xlsx(input_folder):
             # rearrange all the columns to be in this order:
             # Data Year, State Heading/Project Number, Pipeline Company, Construction Complete, New Construction, Total Pipeline Length, Pipeline Length by Diameter, Pipeline Diameter, Fuel Type Raw, Fuel Type Inferred, Origin City, Origin County, Origin State, Other Origin Description, Terminus City, Terminus County, Terminus State, Other Terminus Description, Interstate or Intrastate, FPC, Parallel or Loop, Function, Connection, Page Number, model_id, absolute_page_n, Notes
             cols = df.columns.tolist()
-            new_order = [
-                "Data Year",
-                "State Heading" if "State Heading" in cols else "Project Number",
-                "Pipeline Company",
-                "Construction Complete",
-                "New Construction",
-                "Total Pipeline Length",
-                "Pipeline Length by Diameter",
-                "Pipeline Diameter",
-                "Fuel Type Raw",
-                "Fuel Type Inferred",
-                "Origin City",
-                "Origin County",
-                "Origin State",
-                "Other Origin Description",
-                "Terminus City",
-                "Terminus County",
-                "Terminus State",
-                "Other Terminus Description",
-                "Interstate or Intrastate",
-                "FPC",
-                "Parallel or Loop",
-                "Function",
-                "Connection",
-                "Page Number",
-                "model_id",
-                "absolute_page_n",
-                "Notes"
-            ]
+            new_order = (
+                ["Data Year"]
+                + (["Month"] if "Month" in cols else [])
+                + (["Construction Status Heading"] if "Construction Status Heading" in cols else [])
+                + (["Fuel Type Heading"] if "Fuel Type Heading" in cols else [])
+                + (["State Heading"] if "State Heading" in cols else [])
+                + (["Project Number"] if "Project Number" in cols else [])
+                + [
+                    "Pipeline Company",
+                    "Construction Complete",
+                    "New Construction",
+                    "Total Pipeline Length",
+                    "Pipeline Length by Diameter",
+                    "Pipeline Diameter",
+                    "Fuel Type Raw",
+                    "Fuel Type Inferred",
+                    "Origin City",
+                    "Origin County",
+                    "Origin State",
+                    "Other Origin Description",
+                    "Terminus City",
+                    "Terminus County",
+                    "Terminus State",
+                    "Other Terminus Description",
+                    "Interstate or Intrastate",
+                    "FPC",
+                    "Parallel or Loop",
+                    "Function",
+                    "Connection",
+                    "Page Number",
+                    "model_id",
+                    "absolute_page_n",
+                    "Notes",
+                ]
+            )
             df = df.reindex(columns=new_order)
 
             # export as xlsx
@@ -63,4 +69,3 @@ def csv_to_xlsx(input_folder):
             print(f"Converted {filename} to {basename + '.xlsx'}")
 
 
-csv_to_xlsx("C:/Users/hl2266/Documents/predoc/State Permitting project/Code/pipeline_digitization/outputs/gemini_output/private_1943_1951_extended_vars_2025-11-21-12-58-19")
