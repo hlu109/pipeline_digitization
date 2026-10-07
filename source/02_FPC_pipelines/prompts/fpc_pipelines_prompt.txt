@@ -1,0 +1,55 @@
+Extract structured data from this file and return it following the **FPCPage schema**.
+
+---
+
+### **General Instructions**
+- The file is one page of the Federal Power Commission's *Statistics of Natural Gas Companies* with data on companies' physical infrastructure.
+- The table has one column per company. Company names are printed in the column headers at the top of the page. Rows are numbered line items; the line numbers are printed in the leftmost and rightmost columns.
+- **Only extract the pipe line mileage block** in the "PHYSICAL QUANTITIES" section near the bottom of the page. It is headed "PIPE LINES - Miles" (or "PIPE LINES (Miles)") and contains:
+  - a **Field** row,
+  - a **Transmission** sub-heading followed by rows for each inside-diameter range in inches,
+  - a **Total Transmission** row (may be labeled "Total Transmission Pipe Lines").
+- Ignore every other section of the page (gas utility plant, gas account, gas reserves, wells, compressor stations, etc.).
+- Identify rows by their **printed labels**.
+- ** All letters are in the English alphabet and all words and names are in the English language**
+
+---
+
+### **Page Handling Rules**
+- **Record every company column on the page, including companies whose mileage cells are all blank.** Do not skip or merge columns.
+- **Do not create or make up any data.**
+- If the page has no pipe line mileage block, return an empty list of companies, but still record the printed page number, report year, and footnotes.
+
+---
+
+### **Extraction Rules**
+1. **Printed Page Number** --> The page number printed in the top corner of the page, exactly as printed, including any letter suffix (e.g. "301", "401A"). If missing, enter null.
+
+2. **Report Year** --> The year in the page header "STATISTICS OF NATURAL GAS COMPANIES FOR YEAR ENDED DECEMBER 31, YYYY". If missing, enter null.
+
+3. **Column Index** --> The position of the company column on the page, counting from 1 for the leftmost company column.
+
+4. **Company Name** --> The company name exactly as printed in the column header. Join names that wrap onto several lines with single spaces. Adjacent column headers are close together; make sure each name belongs to its own column. Do not correct, abbreviate, or expand names.
+
+5. **Company Footnote Flags** --> Any footnote flags printed next to or under the company name (e.g. "f", "(A)", "(J)"). Record only the letter or code, without parentheses. If none, return an empty list.
+
+6. **Cells** --> For the Field row, each Transmission diameter row, and the Total Transmission row, record for each company:
+   - **Line Number** --> the printed line number of the row.
+   - **Value As Printed** --> the number exactly as printed, keeping commas and decimal points (e.g. "1,760.1", "42"). Do not round, convert, add, or correct numbers. If the cell has no number, enter null.
+   - **Cell Status** -->
+     - "VALUE" if the cell contains a number.
+     - "BLANK" if the cell is empty.
+     - "NOT_REPORTED" if the cell contains "NR" or "NA".
+     - "FLAG_ONLY" if the cell contains only a footnote flag and no number.
+     - "ILLEGIBLE" if the cell has content you cannot read.
+   - **Footnote Flags** --> any footnote flags printed in or next to the cell, such as lowercase letters (a, b, c), uppercase letters in parentheses ((A), (B)), or "NR"/"NA". Record only the letter or code, without parentheses. A cell can have several flags. If none, return an empty list. Do not confuse a flag with a digit.
+
+7. **Transmission Diameter Rows** --> Record every diameter row printed under Transmission, in order from top to bottom, for every company, even when the company's cell is blank. Copy the diameter range label exactly as printed (e.g. "0.0 - 5.0", "over 25.0").
+
+8. **Footnotes** --> Record every footnote printed at the bottom of the page, including code definitions such as "NA Not available" and "NR Not reported". Record the flag exactly as printed (without parentheses or trailing periods) and the full footnote text verbatim, including any mileages and company names it mentions. Footnotes may be printed in two or more columns; read every column.
+
+---
+
+### **Output Rules**
+- **Do NOT add in any made up data that does not appear on the page.**
+- **Do not compute anything.** Do not sum the diameter rows or fill in a missing total; record only what is printed. But, you may use computations to help disambiguate low-quality printing or scanning issues (e.g., to disambiguate '3' from '8').

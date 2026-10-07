@@ -22,7 +22,7 @@ GEMINI_MODEL_ID = "gemini-3-pro-preview"
 
 # Set File Paths -------------------------------------------
 # Define which pdf input to use
-SCANS_DIR = DATA_ROOT_DIR / "Raw" / "Oil Weekly digitization clean"
+SCANS_DIR = DATA_ROOT_DIR / "Raw" / "Digitization Scans Clean" / "Oil Weekly"
 private_file_path = SCANS_DIR / "private_1943_1951.pdf"
 government_file_path = SCANS_DIR / "gov_1943_1945.pdf"
 # INPUT_FILE_PATH = government_file_path if gov else private_file_path

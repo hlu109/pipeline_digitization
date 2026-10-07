@@ -139,6 +139,7 @@ def extract_page_data(genai_client,
                       prompt_text: str,
                       model_id: str,
                       page_n=None,
+                      media_resolution=None,
                       log_dir=None,
                       identifier=None):
     """
@@ -151,6 +152,7 @@ def extract_page_data(genai_client,
         prompt_text (str): Prompt text for the API.
         model_id (str): Gemini model ID.
         page_n (int): TODO: get rid of this param
+        media_resolution (str): optional resolution setting if using Gemini 3.
         log_dir (str): Directory for writing Gemini error logs.
         identifier (str): Run identifier used for the Gemini log filename.
 
@@ -162,6 +164,15 @@ def extract_page_data(genai_client,
     max_retries = 7
     base_wait = 10  # this is in seconds!
 
+    generation_config = {
+        'response_mime_type': 'application/json',
+        'response_schema': data_struct,
+        'max_output_tokens': max_token_output
+    }
+    # media resolution is only sent to Gemini 3 models
+    if media_resolution is not None and model_id.startswith("gemini-3"):
+        generation_config['media_resolution'] = media_resolution
+
     for attempt in range(max_retries):
         print(f"      Attempt {attempt + 1} to extract data...")
         log_prefix = f"page={page_n} \t\nmodel_id={model_id} \t\nextract_attempt={attempt + 1} \t\n"
@@ -170,11 +181,7 @@ def extract_page_data(genai_client,
             response = genai_client.models.generate_content(
                 model=model_id,
                 contents=[prompt_text, input_file],
-                config={
-                    'response_mime_type': 'application/json',
-                    'response_schema': data_struct,
-                    'max_output_tokens': max_token_output
-                })
+                config=generation_config)
 
             # print("API Response:", response)  # Debugging step
             # print(" Response Usage Metadata:", response.usage_metadata)
@@ -271,6 +278,7 @@ def process_pages(genai_client,
                   temp_dir: str,
                   to_dataframe_fn,
                   png=False,
+                  media_resolution=None,
                   log_dir=None,
                   identifier=None,
                   reuse_old_results: bool = False):
@@ -289,6 +297,7 @@ def process_pages(genai_client,
         temp_dir (str): Folder for per-page JSONs.
         to_dataframe_fn: Function converting a parsed page schema object to a DataFrame.
         png (bool): If True, converts pages to PNG before upload.
+        media_resolution (str): optional resolution setting if using Gemini 3.
         log_dir (str): Directory for writing Gemini error logs.
         identifier (str): Run identifier used for the Gemini log filename.
         reuse_old_results (bool): If True, pages whose JSON already exists in temp_dir are loaded from disk instead of re-queried.
@@ -300,6 +309,11 @@ def process_pages(genai_client,
     failed_pages = []
     max_retries = 5
     start_time = time.time()
+
+    if media_resolution is not None and not model_id.startswith("gemini-3"):
+        _log_and_print(
+            f"Warning: media_resolution={media_resolution} is ignored because {model_id} is not a Gemini 3 model.",
+            log_dir, identifier)
 
     # track issues in real time
     processed_count = 0
@@ -348,14 +362,16 @@ def process_pages(genai_client,
                                                         identifier=identifier)
 
                     # submit to Gemini for extraction
-                    result = extract_page_data(genai_client,
-                                               uploaded_file,
-                                               data_struct,
-                                               prompt_text,
-                                               model_id,
-                                               page_n=N,
-                                               log_dir=log_dir,
-                                               identifier=identifier)
+                    result = extract_page_data(
+                        genai_client,
+                        uploaded_file,
+                        data_struct,
+                        prompt_text,
+                        model_id,
+                        page_n=N,
+                        media_resolution=media_resolution,
+                        log_dir=log_dir,
+                        identifier=identifier)
 
                     if result:
                         success = True

@@ -51,19 +51,19 @@ def _log_and_print(message, log_dir=None, identifier=None):
         write_log(message, log_dir, identifier)
 
 
-def log_config(
-        prompt_text_path,
-        gemini_model_id,
-        identifier,
-        log_dir,
-        input_path=None,
-        output_path=None,
-        run_dir=None,
-        data_struct=None,
-        png=None,
-        reuse_old_results=False,
-        resume_run_identifier=None,
-        note=None):
+def log_config(prompt_text_path,
+               gemini_model_id,
+               identifier,
+               log_dir,
+               input_path=None,
+               output_path=None,
+               run_dir=None,
+               data_struct=None,
+               png=None,
+               media_resolution=None,
+               reuse_old_results=False,
+               resume_run_identifier=None,
+               note=None):
     """
     Logs prompt text, page schema, and configuration values for a Gemini run.
 
@@ -77,6 +77,7 @@ def log_config(
         run_dir (str): Folder for saving intermediate per-page results.
         data_struct (BaseModel): Page schema for the output.
         png (bool): Whether pages are uploaded as PNG.
+        media_resolution (str): optional resolution setting if using Gemini 3.
         reuse_old_results (bool): Whether this run resumes from cached intermediate JSONs.
         resume_run_identifier (str): Identifier of the run being resumed.
         note (str): Free-text note describing the run's purpose.
@@ -123,6 +124,7 @@ def log_config(
             file.write(f"Data structure file: {data_struct_path}\n")
         file.write(f"Gemini model: {gemini_model_id}\n")
         file.write(f"PNG: {png}\n")
+        file.write(f"Media resolution: {media_resolution}\n")
         if reuse_old_results:
             file.write(
                 f"Reuse old results: True, resumed from run '{resume_run_identifier}'\n\n"
