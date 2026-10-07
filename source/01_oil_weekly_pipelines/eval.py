@@ -5,11 +5,17 @@ import os
 from datetime import datetime
 import pandas as pd
 import json
+import sys
+from pathlib import Path
 
-import config
-from PagesLib.gemini_logging import write_log
+# Add source/ to Python path to allow imports from utils
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+import config_gemini as config
+from utils.gemini_logging import write_log
 # from PagesLib import Page, digitizer
-from PagesLib.Page import Entry
+from data_structs.Page import Entry
 from typing import get_args
 
 # ------------------------------------------------------------------------------

@@ -7,7 +7,7 @@ import json
 import os
 import pandas as pd
 from pdf2image import convert_from_path
-from PagesLib.gemini_logging import _log_and_print
+from utils.gemini_logging import _log_and_print
 
 
 class RateLimitException(Exception):
@@ -16,6 +16,11 @@ class RateLimitException(Exception):
 
 class ClientNonRetryableException(Exception):
     """Raised when the model rejects a request with a non-retryable client error."""
+
+
+def _sigterm_to_keyboard_interrupt(signum, frame):
+    """Raises KeyboardInterrupt so a SIGTERM (sent by slurm scancel) is handled by the same interrupt logic as Ctrl+C."""
+    raise KeyboardInterrupt()
 
 
 # ==============================================================================

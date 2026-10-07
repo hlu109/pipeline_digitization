@@ -6,24 +6,22 @@ import os
 import signal
 import sys
 import time
+from pathlib import Path
+
+# Add source/ to Python path to allow imports from utils
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 # Load the user-defined files -----
 
-import config
-from PagesLib import digitizer
-from PagesLib.digitizer import RateLimitException
-from PagesLib.gemini_logging import write_run_boundary, log_config, _log_and_print
-from PagesLib.Page import page_to_dataframe
-from convert import csv_to_xlsx
+import config_gemini as config
+from utils import gemini_digitizer as digitizer
+from utils.gemini_digitizer import RateLimitException, _sigterm_to_keyboard_interrupt
+from utils.gemini_logging import write_run_boundary, log_config, _log_and_print
+from data_structs.Page import page_to_dataframe
+from utils.convert import csv_to_xlsx
 
-# Note: API requires an API key, saved in secret/GEMINI_API_KEY.txt
-
-
-def _sigterm_to_keyboard_interrupt(signum, frame):
-    """Raises KeyboardInterrupt so a SIGTERM (sent by slurm scancel) is handled by the same interrupt logic as Ctrl+C."""
-    raise KeyboardInterrupt()
-
-
+# handle slurm cancellation signals
 signal.signal(signal.SIGTERM, _sigterm_to_keyboard_interrupt)
 
 
