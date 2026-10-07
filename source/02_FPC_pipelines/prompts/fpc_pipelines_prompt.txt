@@ -52,4 +52,4 @@ Extract structured data from this file and return it following the **FPCPage sch
 
 ### **Output Rules**
 - **Do NOT add in any made up data that does not appear on the page.**
-- **Do not compute anything.** Do not sum the diameter rows or fill in a missing total; record only what is printed. But, you may use computations to help disambiguate low-quality printing or scanning issues (e.g., to disambiguate '3' from '8').
+- **Do not compute anything.** Do not sum the diameter rows or fill in a missing total; record only what is printed.

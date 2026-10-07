@@ -42,12 +42,16 @@ def main():
     input_files = {}
     for pdf_path in sorted(config.INPUT_DIR.glob("*.pdf")):
         years = re.findall(r"19\d\d", pdf_path.stem)
-        if len(years) != 1:
+        if len(years) == 0:  # skip
+            continue
+        if len(years) > 1:
             raise ValueError(
                 f"Expected exactly one year in the file name: {pdf_path.name}")
         input_files[pdf_path] = int(years[0])
     if not input_files:
-        raise FileNotFoundError(f"No PDFs found in {config.INPUT_DIR}")
+        raise FileNotFoundError(
+            f"No PDFs with a year in the file name found in {config.INPUT_DIR}"
+        )
 
     os.makedirs(config.GEMINI_DIR, exist_ok=True)
     os.makedirs(config.LOG_DIR, exist_ok=True)
