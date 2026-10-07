@@ -1,8 +1,36 @@
+import getpass
+import os
 from pathlib import Path
 from datetime import datetime
 from PagesLib.Page import PagePrivateCore, PageGovCore, PagePrivateExtended, PageGovExtended, PagePrivate1951_mid1952
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+# ------------------------------------------------------------------------------
+# AUTO-SET BASE DIRECTORIES
+# ------------------------------------------------------------------------------
+
+_user = getpass.getuser()
+if _user == "hl2266":
+    DROPBOX_DIR = Path("C:/Users/hl2266/YLS Dropbox/Hannah Lu/permitting_hub/")
+    # if "dropbox" in os.getcwd().lower():
+    #     # code is in personal dir but use shared dropbox for data
+    #     CODE_DIR = Path(
+    #         "C:/Users/hl2266/YLS Dropbox/Hannah Lu/personal/predoc/Permitting project/Code/pipeline_digitization"
+    #     )
+    #     DATA_ROOT_DIR = DROPBOX_DIR / "Data"
+    if "docker" in os.getcwd().lower():
+        # code is in docker dir but use shared dropbox for data
+        CODE_DIR = Path(
+            "C:/Users/hl2266/project_dockers/pipelines/Code/pipeline_digitization"
+        )
+        DATA_ROOT_DIR = DROPBOX_DIR / "Data"
+    elif "pi_zdl3" in os.getcwd().lower():
+        BASE_DIR = Path("/nfs/roberts/project/pi_zdl3/shared/permitting")
+        CODE_DIR = BASE_DIR / "Code" / "pipeline_digitization"
+        DATA_ROOT_DIR = BASE_DIR / "Data"
+    else:
+        raise ValueError("Invalid location specified")
+else:
+    raise ValueError("Add user paths to config")
 
 # ------------------------------------------------------------------------------
 # SET PARAMETERS ---------------------------------------------------------------
@@ -24,11 +52,11 @@ GEMINI_MODEL_ID = "gemini-3-pro-preview"
 
 # Set File Paths -------------------------------------------
 # Define which pdf input to use
-private_file_path = REPO_ROOT / "inputs" / "pipeline_scans" / "private_1943_1951.pdf"
-private_51_52_file_path = REPO_ROOT / "inputs" / "pipeline_scans" / "private_1951_mid1952.pdf"
-government_file_path = REPO_ROOT / "inputs" / "pipeline_scans" / "gov_1943_1945.pdf"
+SCANS_DIR = DATA_ROOT_DIR / "Raw" / "Oil Weekly digitization clean"
+private_file_path = SCANS_DIR / "private_1943_1951.pdf"
+government_file_path = SCANS_DIR / "gov_1943_1945.pdf"
 # INPUT_FILE_PATH = government_file_path if gov else private_file_path
-INPUT_FILE_PATH = private_51_52_file_path
+INPUT_FILE_PATH = private_file_path
 
 # SET GEMINI PROMPT ------------------------------------------------------------
 # Indicate the file name for the prompt to use
@@ -68,12 +96,12 @@ else:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     IDENTIFIER = f"{RUN_PREFIX}_{timestamp}"
 
-PROMPT_TEXT_PATH = REPO_ROOT / "source" / "prompts" / prompt_text_name
-API_KEY_PATH = REPO_ROOT / "secret" / "GEMINI_API_KEY.txt"
+PROMPT_TEXT_PATH = CODE_DIR / "source" / "prompts" / prompt_text_name
+API_KEY_PATH = CODE_DIR / "secret" / "GEMINI_API_KEY.txt"
 
-OUTPUT_DIR = REPO_ROOT / "outputs"
+OUTPUT_DIR = DATA_ROOT_DIR / "Intermediate" / "pipelines"
 GEMINI_DIR = OUTPUT_DIR / "gemini_output"
-LOG_DIR = OUTPUT_DIR / "logs"
+LOG_DIR = OUTPUT_DIR / "gemini_logs"
 
 RUN_DIR = GEMINI_DIR / IDENTIFIER
 TEMP_DIR = RUN_DIR / "temp"
