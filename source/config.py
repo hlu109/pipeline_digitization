@@ -1,47 +1,39 @@
-import os
+from pathlib import Path
 from datetime import datetime
 from PagesLib.Page import PagePrivateCore, PageGovCore, PagePrivateExtended, PageGovExtended, PagePrivate1951_mid1952
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # ------------------------------------------------------------------------------
 # SET PARAMETERS ---------------------------------------------------------------
 # ------------------------------------------------------------------------------
+
+# Optional note to log purpose of the run (default set to None)
+NOTE = None
 
 gov = False  # True for government pipelines, False for private pipelines
 # True to use all variables, False to use only core variables
 extended_variables = True
 
 # Set API Parameters -------------------------------------------
-# Define the model you are going to use (flash is free with 1,500 requests per day)
-# gemini_model_id = "gemini-2.0-flash"
-# gemini_model_id = "gemini-2.5-flash"
-# gemini_model_id = "gemini-2.5-pro"
-# gemini_model_id = "gemini-3-flash-preview"
-gemini_model_id = "gemini-3-pro-preview"
-
+# GEMINI_MODEL_ID = "gemini-2.0-flash"
+# GEMINI_MODEL_ID = "gemini-2.5-flash"
+# GEMINI_MODEL_ID = "gemini-2.5-pro"
+# GEMINI_MODEL_ID = "gemini-3-flash-preview"
+GEMINI_MODEL_ID = "gemini-3-pro-preview"
 
 # Set File Paths -------------------------------------------
 # Define which pdf input to use
-# Give entire path to the file; expecting a .pdf
-private_file_path = "inputs/pipeline_scans/private_1943_1951.pdf"
-private_51_52_file_path = "inputs/pipeline_scans/private_1951_mid1952.pdf"
-government_file_path = "inputs/pipeline_scans/gov_1943_1945.pdf"
+private_file_path = REPO_ROOT / "inputs" / "pipeline_scans" / "private_1943_1951.pdf"
+private_51_52_file_path = REPO_ROOT / "inputs" / "pipeline_scans" / "private_1951_mid1952.pdf"
+government_file_path = REPO_ROOT / "inputs" / "pipeline_scans" / "gov_1943_1945.pdf"
 # INPUT_FILE_PATH = government_file_path if gov else private_file_path
 INPUT_FILE_PATH = private_51_52_file_path
-
-# Define your output file base name (no file extension)
-OUTPUT_FILE_BASE_NAME = os.path.splitext(os.path.basename(INPUT_FILE_PATH))[
-    0] + ("_extended_vars" if extended_variables else "_core_vars")
-
-# SET OUTPUT PATH  -------------------------------------------------------------
-output_dir = "outputs"
-results_dir = os.path.join(output_dir, "gemini_output")
-log_dir = os.path.join(output_dir, "logs")
 
 # SET GEMINI PROMPT ------------------------------------------------------------
 # Indicate the file name for the prompt to use
 # prompt_text_name = f"pipeline_{'extended' if extended_variables else 'core'}_prompt_{"gov" if gov else "priv"}.txt"
 prompt_text_name = "pipeline_extended_1951_mid1952_prompt.txt"
-prompt_text_path = os.path.join("source/prompts", prompt_text_name)
 
 # Set Page Schema -----------------------------------
 # if extended_variables:
@@ -51,71 +43,38 @@ prompt_text_path = os.path.join("source/prompts", prompt_text_name)
 page_schema = PagePrivate1951_mid1952
 
 # Page Parameters -------------------------------------------
-# Set the number of pages before and after page N to feed into Gemini when digitizing page N
-page_window = 1
-page_placement = "top"
-
-# Define number of pages to digitize.
-all_pages = True  # If True, just does all the pages in the document
-start_page = 1  # The starting page number in the file
-n_pages = 1  # The number of pages (total) to digitize
-
-# Indicate whether the pages should be saved as .png instead of .pdf
-# ! NOTE: .png files must be a single page, so this only works with page_window=1
+# Indicate whether the pages should be uploaded as .png instead of .pdf
 png = False
 
+# SET FILE IDENTIFIERS ---------------------------------------------------------
+RUN_PREFIX = INPUT_FILE_PATH.stem + ("_extended_vars"
+                                     if extended_variables else "_core_vars")
+
+# SET RESUME PARAMETERS --------------------------------------------------------
+REUSE_OLD_RESULTS = False
+RESUME_RUN_IDENTIFIER = None
 
 # ------------------------------------------------------------------------------
 # END OF SET PARAMETERS --------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-# save each execution with a separate file suffix --- to ensure nothing is over-written
-timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-identifier = timestamp
-OUTPUT_FILE_NAME = OUTPUT_FILE_BASE_NAME + "_" + identifier + ".csv"
+if REUSE_OLD_RESULTS:
+    if not RESUME_RUN_IDENTIFIER:
+        raise ValueError(
+            "REUSE_OLD_RESULTS is True but RESUME_RUN_IDENTIFIER is not set.")
+    # reuse the prior run's identifier so intermediate files, the output CSV, and the log file all resolve to the same paths as the run being resumed
+    IDENTIFIER = RESUME_RUN_IDENTIFIER
+else:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    IDENTIFIER = f"{RUN_PREFIX}_{timestamp}"
 
-# folder for intermediate results
-intermediate_dir = os.path.join(
-    results_dir, OUTPUT_FILE_BASE_NAME + "_" + identifier)
+PROMPT_TEXT_PATH = REPO_ROOT / "source" / "prompts" / prompt_text_name
+API_KEY_PATH = REPO_ROOT / "secret" / "GEMINI_API_KEY.txt"
 
-# TODO: move this to utils
-# Define logging function
+OUTPUT_DIR = REPO_ROOT / "outputs"
+GEMINI_DIR = OUTPUT_DIR / "gemini_output"
+LOG_DIR = OUTPUT_DIR / "logs"
 
-
-def write_log(message, log_dir=log_dir):
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-    file_path = os.path.join(log_dir, f"log_{identifier}.txt")
-    with open(file_path, "a", encoding="utf-8") as file:
-        timestamp = datetime.now().strftime("%H%M:%S")
-        file.write(f"[{timestamp}] {message}\n\n")
-
-
-def log_config(log_dir=log_dir):
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-
-    # Save text of gemini prompt--------
-    with open(prompt_text_path, "r") as file:
-        prompt_text = file.read()
-    with open(os.path.join(log_dir, "prompt_text.txt"), "a",
-              encoding="utf-8") as file:
-        file.write(prompt_text)
-
-    # Save parameter values ----------
-    file_path = os.path.join(log_dir, f"log_{identifier}.txt")
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    with open(file_path, "a", encoding="utf-8") as file:
-        file.write(f"[{timestamp}] \n\n")
-        file.write(f"CONFIG PARAMETERS\n\n")
-        # file.write(f"Directory file year: {input_file_year}\n")
-        file.write(f"Start page: {start_page}\n")
-        file.write(f"End page: {start_page + n_pages - 1}\n")
-        file.write(f"Page window: {page_window}\n")
-        file.write(f"Prompt text file: {prompt_text_name}\n")
-        file.write(f"Gemini model: {gemini_model_id}\n\n")
-
-
-# ------------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
+RUN_DIR = GEMINI_DIR / IDENTIFIER
+TEMP_DIR = RUN_DIR / "temp"
+OUTPUT_PATH = GEMINI_DIR / f"{IDENTIFIER}.csv"

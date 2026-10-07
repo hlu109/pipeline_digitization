@@ -7,7 +7,7 @@ import pandas as pd
 import json
 
 import config
-from config import write_log
+from PagesLib.gemini_logging import write_log
 # from PagesLib import Page, digitizer
 from PagesLib.Page import Entry
 from typing import get_args
@@ -42,7 +42,7 @@ def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_e
     assert os.path.exists(
         true_path), f"True data file {true_path} does not exist."
 
-    eval_log_dir = os.path.join(config.output_dir, "performance_evals")
+    eval_log_dir = os.path.join(config.OUTPUT_DIR, "performance_evals")
 
     # Load the predicted and true data
     pred_data = pd.read_csv(pred_path)
@@ -247,7 +247,7 @@ def eval_performance(pred_path, true_path, filter_year_start=1945, filter_year_e
     # Log the evaluation results
     # TODO: create separate folder for performance evaluations and rename the log file something better
     write_log(
-        f"Evaluation results for {pred_path} vs {true_path}:\n{json.dumps(performance, indent=4)}", log_dir=eval_log_dir)
+        f"Evaluation results for {pred_path} vs {true_path}:\n{json.dumps(performance, indent=4)}", eval_log_dir, config.IDENTIFIER)
 
     print("Evaluation complete.")
 
