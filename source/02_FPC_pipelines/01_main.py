@@ -12,6 +12,7 @@ from functools import partial
 from pathlib import Path
 
 import pandas as pd
+from PyPDF2 import PdfReader
 
 # Add source/ to Python path to allow imports from utils
 project_root = Path(__file__).parent.parent
@@ -95,11 +96,19 @@ def main():
     # --------------------------------------------------------------------------
     # Run digitizer process
     # --------------------------------------------------------------------------
+    # page counts for progress tracker
+    n_pages_by_file = {
+        pdf_path: len(PdfReader(pdf_path).pages)
+        for pdf_path in input_files
+    }
+    n_pages_total = sum(n_pages_by_file.values())
+    n_pages_done = 0
+
     start_time = time.time()
     try:
         mileage_dfs = []
         footnote_dfs = []
-        for pdf_path, data_year in input_files.items():
+        for i, (pdf_path, data_year) in enumerate(input_files.items()):
             _log_and_print(f"Digitizing {pdf_path.name}", config.LOG_DIR,
                            config.IDENTIFIER)
             file_run_dir = config.RUN_DIR / str(data_year)
@@ -138,6 +147,14 @@ def main():
                 for key in ("model_id", "absolute_page_n"):
                     fn_df[key] = result_json.get(key)
                 footnote_dfs.append(fn_df)
+
+            # update progress tracker
+            n_pages_done += n_pages_by_file[pdf_path]
+            elapsed_s = time.time() - start_time
+            _log_and_print(
+                f"Run progress: {i + 1}/{len(input_files)} files, {n_pages_done}/{n_pages_total} pages, "
+                f"{elapsed_s / 3600:.2f} hrs elapsed, {elapsed_s / n_pages_done:.1f} s per page",
+                config.LOG_DIR, config.IDENTIFIER)
 
         # combine all years
         if mileage_dfs:

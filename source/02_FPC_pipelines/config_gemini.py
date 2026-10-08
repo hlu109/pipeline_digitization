@@ -7,7 +7,7 @@ from utils.config import CODE_DIR, DATA_ROOT_DIR, API_KEY_PATH
 # ------------------------------------------------------------------------------
 
 # Optional note to log purpose of the run (default set to None)
-NOTE = None
+NOTE = "Add 1944 and 1945 volumes, which weren't included in my first run."
 
 # Set API Parameters -------------------------------------------
 # GEMINI_MODEL_ID = "gemini-2.0-flash"
@@ -37,8 +37,8 @@ MEDIA_RESOLUTION = "MEDIA_RESOLUTION_HIGH"
 RUN_PREFIX = "fpc_pipelines"
 
 # SET RESUME PARAMETERS --------------------------------------------------------
-REUSE_OLD_RESULTS = False
-RESUME_RUN_IDENTIFIER = None
+REUSE_OLD_RESULTS = True
+RESUME_RUN_IDENTIFIER = "fpc_pipelines_20261007_183000"
 
 # ------------------------------------------------------------------------------
 # END OF SET PARAMETERS --------------------------------------------------------
